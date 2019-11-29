@@ -17,6 +17,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import Footer from '../components/Footer';
+
 
 export default class Home extends React.PureComponent{
 
@@ -218,7 +220,7 @@ export default class Home extends React.PureComponent{
                     Expand your reading.
                 </Typography>
 
-                <Typography align="center" variant="h1" style={{ marginLeft: 80, marginRight: 80, marginTop: 20 }}>
+                <Typography align="center" variant="h1" style={{ marginLeft: 80, marginRight: 80, marginTop: 20, marginBottom: 80 }}>
                     Expand your mind.
                 </Typography>
 
@@ -242,15 +244,15 @@ export default class Home extends React.PureComponent{
                                 <TextField
                                     autoFocus
                                     margin="dense"
-                                    id="email"
-                                    label="Email Address"
-                                    type="email"
+                                    id="username-getstarted"
+                                    label="Username"
+                                    type="text"
                                     fullWidth
                                 />
 
                                 <TextField
                                     margin="dense"
-                                    id="password"
+                                    id="password-getstarted"
                                     label="Password"
                                     type="password"
                                     fullWidth
@@ -292,15 +294,15 @@ export default class Home extends React.PureComponent{
                                 <TextField
                                     autoFocus
                                     margin="dense"
-                                    id="email"
-                                    label="Email Address"
-                                    type="email"
+                                    id="username-signin"
+                                    label="Username"
+                                    type="text"
                                     fullWidth
                                 />
 
                                 <TextField
                                     margin="dense"
-                                    id="password"
+                                    id="password-signin"
                                     label="Password"
                                     type="password"
                                     fullWidth
@@ -322,6 +324,7 @@ export default class Home extends React.PureComponent{
                     </DialogActions>
                 </Dialog>
 
+                <Footer/>
             </div>
         )
     }
