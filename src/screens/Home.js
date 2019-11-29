@@ -10,7 +10,24 @@ import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 
 
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+
 export default class Home extends React.PureComponent{
+
+    constructor() {
+        super();
+
+        this.state = {
+            getStartedDialog: false,
+            signInDialog: false,
+        }
+    }
 
     classes = {
         root: {
@@ -23,6 +40,11 @@ export default class Home extends React.PureComponent{
             marginLeft: 80,
             marginRight: 80,
             marginTop: 100
+        },
+        modal: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
         }
     }
     
@@ -37,8 +59,8 @@ export default class Home extends React.PureComponent{
                         </Typography>
 
                         <Button color="black" style={{textTransform: 'capitalize', fontSize: 18}}>Write</Button>
-                        <Button color="black" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18}}>Sign In</Button>
-                        <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18}}>Get Started</Button>
+                        <Button color="black" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true})}>Sign In</Button>
+                        <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18}} onClick={() => this.setState({ getStartedDialog: true})}>Get Started</Button>
                     </Toolbar>
                 </AppBar>
 
@@ -199,6 +221,106 @@ export default class Home extends React.PureComponent{
                 <Typography align="center" variant="h1" style={{ marginLeft: 80, marginRight: 80, marginTop: 20 }}>
                     Expand your mind.
                 </Typography>
+
+                <Dialog open={this.state.getStartedDialog} onClose={() => this.setState({ getStartedDialog: false})} aria-labelledby="form-dialog-title" >
+                    
+                    <Grid container direction="column" align="center" justify="center">
+
+                        <Grid item xs={12}>
+
+                            <DialogTitle id="form-dialog-title">Get Started</DialogTitle>
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <DialogContent>
+
+                                <DialogContentText style={{ display: 'flex', margin: 'auto', justifyContent: 'center', alignItems: 'center' }}>
+                                    You need an account to read and write blogs. Please enter a valid email and a password. Your password is safe with us. We promise.
+                                </DialogContentText>
+
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="email"
+                                    label="Email Address"
+                                    type="email"
+                                    fullWidth
+                                />
+
+                                <TextField
+                                    margin="dense"
+                                    id="password"
+                                    label="Password"
+                                    type="password"
+                                    fullWidth
+                                />
+
+                            </DialogContent>
+                        </Grid>
+
+                    </Grid>
+                    
+                    <DialogActions>
+                        <Button onClick={() => this.setState({ getStartedDialog: false })} color="black" style={{textTransform: 'capitalize', fontSize: 18 }}>
+                            Cancel
+                        </Button>
+                        {/*TODO: Complete the sign up functionality*/}
+                        <Button onClick={() => this.setState({ getStartedDialog: false })} color="inherit" style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, backgroundColor: 'green', padding: 10 }}>
+                            Sign Up
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={this.state.signInDialog} onClose={() => this.setState({ signInDialog: false })} aria-labelledby="form-dialog-title" >
+
+                    <Grid container direction="column" align="center" justify="center">
+
+                        <Grid item xs={12}>
+
+                            <DialogTitle id="form-dialog-title">Get Started</DialogTitle>
+
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <DialogContent>
+
+                                <DialogContentText style={{ display: 'flex', margin: 'auto', justifyContent: 'center', alignItems: 'center' }}>
+                                    You must already have an account to sign in. Please enter your email id and password. If you don't have an account, then sign up.
+                                </DialogContentText>
+
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="email"
+                                    label="Email Address"
+                                    type="email"
+                                    fullWidth
+                                />
+
+                                <TextField
+                                    margin="dense"
+                                    id="password"
+                                    label="Password"
+                                    type="password"
+                                    fullWidth
+                                />
+
+                            </DialogContent>
+                        </Grid>
+
+                    </Grid>
+
+                    <DialogActions>
+                        <Button onClick={() => this.setState({ signInDialog: false })} color="black" style={{ textTransform: 'capitalize', fontSize: 18 }}>
+                            Cancel
+                        </Button>
+                        {/*TODO: Complete the sign up functionality*/}
+                        <Button onClick={() => this.setState({ signInDialog: false })} color="inherit" style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, backgroundColor: 'green', padding: 10 }}>
+                            Sign In
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
             </div>
         )
