@@ -17,7 +17,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 import Footer from '../components/Footer';
+
+import url from '../config';
 
 
 export default class Home extends React.PureComponent{
@@ -26,8 +30,16 @@ export default class Home extends React.PureComponent{
         super();
 
         this.state = {
+            loading: false,
+            error: false,
             getStartedDialog: false,
             signInDialog: false,
+            emailError: false,
+            passwordError: false,
+            getStartedEmail: '',
+            getStartedPassword: '',
+            signInEmail: '',
+            signInPassword: ''
         }
     }
 
@@ -49,6 +61,61 @@ export default class Home extends React.PureComponent{
             justifyContent: 'center',
         }
     }
+
+    async validateEmail(email) {
+        var reg = /\S+@\S+\.\S+/;
+        if (!reg.test(email)) {
+            throw Error('ERR_EMAIL');
+        }
+    }
+
+    async validatePassword(password) {
+        var reg = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+        if (!reg.test(password)) {
+            throw Error('ERR_PASSWORD');
+        }
+    }
+
+    async insertUserIntoTable() {
+
+        let rawResponse = await fetch(url + `/users`, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: this.state.getStartedEmail,
+                password: this.state.getStartedPassword
+            }),
+            
+        });
+        var content = await rawResponse.json();
+        console.log(content);
+    }
+
+    async createUser() {
+        
+
+
+    }
+
+    handleGetStartedClick() {
+        console.log('Called handleGetStartedClick', this.state);
+        this.setState({ loading: true });
+
+        this.validateEmail(this.state.getStartedEmail)
+            .then(() => this.validatePassword(this.state.getStartedPassword))
+            .then(() => this.insertUserIntoTable())
+            .then(() => {
+                this.setState({ loading: false})
+            })
+            .catch(error => {
+                this.setState({ loading: false });
+                console.error(error);
+            });
+    }
     
     render() {
         return (
@@ -60,8 +127,8 @@ export default class Home extends React.PureComponent{
                             Reader
                         </Typography>
 
-                        <Button color="black" style={{textTransform: 'capitalize', fontSize: 18}}>Write</Button>
-                        <Button color="black" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true})}>Sign In</Button>
+                        <Button color="inherit" style={{textTransform: 'capitalize', fontSize: 18}}>Write</Button>
+                        <Button color="inherit" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true})}>Sign In</Button>
                         <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18}} onClick={() => this.setState({ getStartedDialog: true})}>Get Started</Button>
                     </Toolbar>
                 </AppBar>
@@ -197,13 +264,13 @@ export default class Home extends React.PureComponent{
                 
                 <Grid container direction="row">
 
-                    <Grid item align="center" justify="center" xs={12} md={6} style={{padding: 80}}>
+                    <Grid item align="center" xs={12} md={6} style={{padding: 80}}>
                         <Button variant="contained" style={{ paddingTop: 20, paddingBottom: 20, paddingLeft: 80, paddingRight: 80 }}>
                             Get Started
                         </Button>
                     </Grid>
 
-                    <Grid item justify="flex-end" xs={12} md={6} style={{ padding: 80 }}>
+                    <Grid item xs={12} md={6} style={{ padding: 80 }}>
                         <Typography variant="h5">
                             We are different than others
                         </Typography>
@@ -225,7 +292,6 @@ export default class Home extends React.PureComponent{
                 </Typography>
 
                 <Dialog open={this.state.getStartedDialog} onClose={() => this.setState({ getStartedDialog: false})} aria-labelledby="form-dialog-title" >
-                    
                     <Grid container direction="column" align="center" justify="center">
 
                         <Grid item xs={12}>
@@ -244,10 +310,12 @@ export default class Home extends React.PureComponent{
                                 <TextField
                                     autoFocus
                                     margin="dense"
-                                    id="username-getstarted"
-                                    label="Username"
-                                    type="text"
+                                    id="email-getstarted"
+                                    label="Email"
+                                    type="email"
                                     fullWidth
+                                    error={this.state.emailError}
+                                    onChange={event => this.setState({ getStartedEmail: event.target.value })}
                                 />
 
                                 <TextField
@@ -256,22 +324,33 @@ export default class Home extends React.PureComponent{
                                     label="Password"
                                     type="password"
                                     fullWidth
+                                    error={this.state.passwordError}
+                                    onChange={event => this.setState({ getStartedPassword: event.target.value })}
                                 />
 
                             </DialogContent>
                         </Grid>
 
                     </Grid>
-                    
+
                     <DialogActions>
-                        <Button onClick={() => this.setState({ getStartedDialog: false })} color="black" style={{textTransform: 'capitalize', fontSize: 18 }}>
+                        <Button onClick={() => this.setState({ getStartedDialog: false })} color="black" style={{ textTransform: 'capitalize', fontSize: 18 }}>
                             Cancel
-                        </Button>
+                                    </Button>
                         {/*TODO: Complete the sign up functionality*/}
-                        <Button onClick={() => this.setState({ getStartedDialog: false })} color="inherit" style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, backgroundColor: 'green', padding: 10 }}>
-                            Sign Up
-                        </Button>
+                        {
+                            this.state.loading ?
+                                
+                                <CircularProgress color='primary' size={24} variant="indeterminate" style={{ marginLeft: 40, marginRight: 40}} />
+                                
+                            :
+                                <Button onClick={() => this.handleGetStartedClick()} color="primary" style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, backgroundColor: 'green', padding: 10 }}>
+                                Sign Up
+                                </Button>
+                                    
+                        }
                     </DialogActions>
+                    
                 </Dialog>
 
                 <Dialog open={this.state.signInDialog} onClose={() => this.setState({ signInDialog: false })} aria-labelledby="form-dialog-title" >
