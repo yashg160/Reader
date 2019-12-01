@@ -1,2 +1,2 @@
-const url = 'http://localhost:3001';
-module.exports = url;
+const serverUrl = 'http://localhost:3001';
+module.exports = serverUrl;

@@ -21,7 +21,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Footer from '../components/Footer';
 
-import url from '../config';
+import serverUrl from '../config';
 
 
 export default class Home extends React.PureComponent{
@@ -35,6 +35,7 @@ export default class Home extends React.PureComponent{
             getStartedDialog: false,
             signInDialog: false,
             emailError: false,
+            emailErrorMessage: '',
             passwordError: false,
             getStartedEmail: '',
             getStartedPassword: '',
@@ -64,23 +65,20 @@ export default class Home extends React.PureComponent{
 
     async validateEmail(email) {
         var reg = /\S+@\S+\.\S+/;
-        if (!reg.test(email)) {
+        if (!reg.test(email)) 
             throw Error('ERR_EMAIL');
-        }
     }
 
     async validatePassword(password) {
         var reg = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-        if (!reg.test(password)) {
+        if (!reg.test(password)) 
             throw Error('ERR_PASSWORD');
-        }
     }
 
     async insertUserIntoTable() {
 
-        let rawResponse = await fetch(url + `/users`, {
+        let rawResponse = await fetch(serverUrl + `/users`, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -91,29 +89,42 @@ export default class Home extends React.PureComponent{
             }),
             
         });
+
         var content = await rawResponse.json();
-        console.log(content);
-    }
 
-    async createUser() {
-        
-
-
+        if (content.error && content.errorMessage=='ERR_DUP_ENTRY') 
+            throw Error('ERR_DUP_ENTRY');
+        else if (content.error) 
+            throw Error('ERR_UNKNOWN');
     }
 
     handleGetStartedClick() {
         console.log('Called handleGetStartedClick', this.state);
-        this.setState({ loading: true });
+        this.setState({ loading: true, error: false, emailError: false, passwordError: false, emailErrorMessage:'' });
 
         this.validateEmail(this.state.getStartedEmail)
             .then(() => this.validatePassword(this.state.getStartedPassword))
             .then(() => this.insertUserIntoTable())
             .then(() => {
-                this.setState({ loading: false})
+                //User created successfully. Procced the next screen.
+                console.log('User created successfully. Will proceed to next screen');
+                this.setState({ loading: false, getStartedDialog: false });
             })
             .catch(error => {
-                this.setState({ loading: false });
+
                 console.error(error);
+
+                if (error.message == 'ERR_EMAIL')
+                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'Invalid Email' });
+                else if (error.message == 'ERR_PASSWORD')
+                    this.setState({ loading: false, passwordError: true });
+                else if (error.message == 'ERR_DUP_ENTRY')
+                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'Email already registered' });
+                else {
+                    //TODO: Display some error notification or something.
+                    this.setState({ loading: false });
+                }
+                    
             });
     }
     
@@ -315,6 +326,8 @@ export default class Home extends React.PureComponent{
                                     type="email"
                                     fullWidth
                                     error={this.state.emailError}
+                                    helperText={this.state.emailErrorMessage}
+                                    disabled={this.state.loading}
                                     onChange={event => this.setState({ getStartedEmail: event.target.value })}
                                 />
 
@@ -325,7 +338,9 @@ export default class Home extends React.PureComponent{
                                     type="password"
                                     fullWidth
                                     error={this.state.passwordError}
+                                    disabled={this.state.loading}
                                     onChange={event => this.setState({ getStartedPassword: event.target.value })}
+                                    helperText='At least 6 characters, one uppercase and one lowercase'
                                 />
 
                             </DialogContent>
@@ -336,7 +351,7 @@ export default class Home extends React.PureComponent{
                     <DialogActions>
                         <Button onClick={() => this.setState({ getStartedDialog: false })} color="black" style={{ textTransform: 'capitalize', fontSize: 18 }}>
                             Cancel
-                                    </Button>
+                        </Button>
                         {/*TODO: Complete the sign up functionality*/}
                         {
                             this.state.loading ?
