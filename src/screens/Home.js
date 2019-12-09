@@ -23,6 +23,9 @@ import Footer from '../components/Footer';
 
 import serverUrl from '../config';
 
+import Cookies from 'js-cookie';
+
+
 
 export default class Home extends React.PureComponent{
 
@@ -30,7 +33,8 @@ export default class Home extends React.PureComponent{
         super();
 
         this.state = {
-            loading: false,
+            loading: true,
+            dialogLoading: false,
             error: false,
             getStartedDialog: false,
             signInDialog: false,
@@ -92,7 +96,7 @@ export default class Home extends React.PureComponent{
         });
 
         var content = await rawResponse.json();
-
+        console.log(content);
         if (content.error && content.errorMessage=='ERR_DUP_ENTRY') 
             throw Error('ERR_DUP_ENTRY');
         else if (content.error) 
@@ -101,7 +105,7 @@ export default class Home extends React.PureComponent{
 
     handleGetStartedClick() {
         console.log('Called handleGetStartedClick', this.state);
-        this.setState({ loading: true, error: false, emailError: false, passwordError: false, emailErrorMessage:'' });
+        this.setState({ dialogLoading: true, error: false, emailError: false, passwordError: false, emailErrorMessage:'' });
 
         this.validateEmail(this.state.getStartedEmail)
             .then(() => this.validatePassword(this.state.getStartedPassword))
@@ -109,21 +113,22 @@ export default class Home extends React.PureComponent{
             .then(() => {
                 //User created successfully. Procced the next screen.
                 console.log('User created successfully. Will proceed to next screen');
-                this.setState({ loading: false, getStartedDialog: false });
+                this.setState({ dialogLoading: false, getStartedDialog: false });
+                this.props.history.push('/profile');
             })
             .catch(error => {
 
                 console.error(error);
 
                 if (error.message == 'ERR_EMAIL')
-                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'Invalid Email' });
+                    this.setState({ dialogLoading: false, emailError: true, emailErrorMessage: 'Invalid Email' });
                 else if (error.message == 'ERR_PASSWORD')
-                    this.setState({ loading: false, passwordError: true });
+                    this.setState({ dialogLoading: false, passwordError: true });
                 else if (error.message == 'ERR_DUP_ENTRY')
-                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'Email already registered' });
+                    this.setState({ dialogLoading: false, emailError: true, emailErrorMessage: 'Email already registered' });
                 else {
                     //TODO: Display some error notification or something.
-                    this.setState({ loading: false });
+                    this.setState({ dialogLoading: false });
                 }
                     
             });
@@ -138,7 +143,6 @@ export default class Home extends React.PureComponent{
                 'Accept': 'application/json'
             }
         });
-
         var content = await rawResponse.json();
         console.log(content);
 
@@ -149,7 +153,7 @@ export default class Home extends React.PureComponent{
     handleSignInClick() {
         console.log('Called handleSignInClick');
 
-        this.setState({ loading: true, error: false, emailError: false, passwordError: false, emailErrorMessage: '', passwordErrorMessage: '' });
+        this.setState({ dialogLoading: true, error: false, emailError: false, passwordError: false, emailErrorMessage: '', passwordErrorMessage: '' });
 
         const { signInEmail } = this.state;
 
@@ -159,26 +163,52 @@ export default class Home extends React.PureComponent{
                 //User exists. Password verified in previous method. Proceed to next page
                 console.log('Email and password were correct. Will proceed to next screen');
                 //TODO: Move to next page
-                this.setState({ loading: false, signInDialog: false });
+                this.setState({ dialogLoading: false, signInDialog: false });
+                this.props.history.push('/dashboard');
+                
             })
             .catch(error => {
                 console.error(error);
 
                 //TODO: Error message for ERR_SERVER and else case
                 if (error.message == 'ERR_EMAIL')
-                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'Invalid Email' });
+                    this.setState({ dialogLoading: false, emailError: true, emailErrorMessage: 'Invalid Email' });
                 else if (error.message == 'ERR_SERVER' || error.message == 'ERR_DUP_ACC')
-                    this.setState({ loading: false });
+                    this.setState({ dialogLoading: false });
                 else if (error.message == 'ERR_USER_EXISTS')
-                    this.setState({ loading: false, emailError: true, emailErrorMessage: 'No such account exists' });
+                    this.setState({ dialogLoading: false, emailError: true, emailErrorMessage: 'No such account exists' });
                 else if (error.message == 'ERR_PASSWORD')
-                    this.setState({ loading: false, passwordError: true, passwordErrorMessage: 'Incorrect password. Try again' });
+                    this.setState({ dialogLoading: false, passwordError: true, passwordErrorMessage: 'Incorrect password. Try again' });
                 else
-                    this.setState({ loading: false})
+                    this.setState({ dialogLoading: false})
             });
+        
+    }
+
+    componentDidMount() {
+
+        //Get the userAuthentcated cookie. If it is true, then move to the dashboard screen. Else, display this page
+        //to allow the user to signup.
+
+        const userAuthenticated = Cookies.get('userAuthenticated');
+        console.log('Cookie userAuthenticated: ', userAuthenticated);
+
+        if (userAuthenticated)
+            this.props.history.push('/dashboard');
+        else
+            this.setState({ loading: false });
     }
     
     render() {
+        if (this.state.loading) {
+            return (
+                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 200}}>
+                    <CircularProgress variant="indeterminate" color="secondary" size={40} justify="center" alignItems="center" />
+                </div>
+                
+            )
+        }
+
         return (
             <div>
                 <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
@@ -190,7 +220,7 @@ export default class Home extends React.PureComponent{
 
                         <Button color="inherit" style={{textTransform: 'capitalize', fontSize: 18}}>Write</Button>
                         <Button color="inherit" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true})}>Sign In</Button>
-                        <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18}} onClick={() => this.setState({ getStartedDialog: true})}>Get Started</Button>
+                        <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ getStartedDialog: true })}>Get Started</Button>
                     </Toolbar>
                 </AppBar>
 
@@ -377,7 +407,7 @@ export default class Home extends React.PureComponent{
                                     fullWidth
                                     error={this.state.emailError}
                                     helperText={this.state.emailErrorMessage}
-                                    disabled={this.state.loading}
+                                    disabled={this.state.dialogLoading}
                                     onChange={event => this.setState({ getStartedEmail: event.target.value })}
                                 />
 
@@ -388,7 +418,7 @@ export default class Home extends React.PureComponent{
                                     type="password"
                                     fullWidth
                                     error={this.state.passwordError}
-                                    disabled={this.state.loading}
+                                    disabled={this.state.dialogLoading}
                                     onChange={event => this.setState({ getStartedPassword: event.target.value })}
                                     helperText='At least 6 characters, one uppercase and one lowercase'
                                 />
@@ -403,7 +433,7 @@ export default class Home extends React.PureComponent{
                             Cancel
                         </Button>
                         {
-                            this.state.loading ?
+                            this.state.dialogLoading ?
                                 
                                 <CircularProgress color='primary' size={24} variant="indeterminate" style={{ marginLeft: 40, marginRight: 40}} />
                                 
@@ -443,7 +473,7 @@ export default class Home extends React.PureComponent{
                                     fullWidth
                                     error={this.state.emailError}
                                     helperText={this.state.emailErrorMessage}
-                                    disabled={this.state.loading}
+                                    disabled={this.state.dialogLoading}
                                     onChange={event => this.setState({ signInEmail: event.target.value })}
                                 />
 
@@ -455,7 +485,7 @@ export default class Home extends React.PureComponent{
                                     fullWidth
                                     error={this.state.passwordError}
                                     helperText={this.state.passwordErrorMessage}
-                                    disabled={this.state.loading}
+                                    disabled={this.state.dialogLoading}
                                     onChange={event => this.setState({ signInPassword: event.target.value })}
                                 />
 
@@ -470,7 +500,7 @@ export default class Home extends React.PureComponent{
                         </Button>
                         {/*TODO: Complete the sign up functionality*/}
                         {
-                            this.state.loading ?
+                            this.state.dialogLoading ?
 
                                 <CircularProgress color='primary' size={24} variant="indeterminate" style={{ marginLeft: 40, marginRight: 40 }} />
 

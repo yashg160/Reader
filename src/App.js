@@ -1,16 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Home from './screens/Home';
+import Dashboard from './screens/Dashboard';
+import Profile from './screens/Profile';
+
 
 function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/">
-          <Home/>
-        </Route>
-      </Switch>
-    </Router>
+      <Router>
+        <Switch>
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/" component={Home} />
+        </Switch>
+      </Router>
   );
 }
 
