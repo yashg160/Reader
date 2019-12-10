@@ -5,9 +5,131 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
+import Input from '@material-ui/core/Input';
+
+import { makeStyles } from '@material-ui/core/styles';
+
+
+import InputBase from '@material-ui/core/InputBase';
+
+import serverUrl from '../config';
+
+import Cookies from 'js-cookie';
+
+
 
 export default class Profile extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userName: '',
+            userAbout: '',
+            userNameError: false,
+            userNameErrorMessage: '',
+            userAboutError: false,
+            userAboutErrorMessage: ''
+        }
+        
+    }
+
+    async validateName() {
+        var reg = /^[A-Za-z ]+$/;
+        if (!reg.test(this.state.userName)) {
+            throw Error('ERR_NAME');
+        }
+    }
+
+    async validateAbout() {
+        if (!this.state.userAbout)
+            throw Error('ERR_ABOUT');
+    }
+
+    async setProfile() {
+        //Send a put request to the users endpoint to update the name and about values in the table
+        const id = await Cookies.get('userId');
+
+        let rawResponse = await fetch(serverUrl + '/users', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                id: id,
+                name: this.state.userName,
+                about: this.state.userAbout
+            })
+        });
+
+        const content = await rawResponse.json();
+        console.log(content);
+        if (content.error)
+            throw Error('ERR_UPDATE');
+    }
+
+    handleProfileSubmit() {
+        console.log('Called handleProfileSubmit');
+
+        this.validateName()
+            .then(() => this.validateAbout())
+            .then(() => this.setProfile())
+            .then(() => {
+                //TODO: Profile has been successfully created. Move to the dashboard
+                //Set entered name in cookie
+                Cookies.set('userName', this.state.userName);
+                this.props.history.replace('/dashboard');
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+
+    profileHeading() {
+
+        const styles = makeStyles(theme => ({
+            root: {
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+            },
+            profileHeading: {
+                marginTop: 80,
+                marginBottom: 40,
+                [theme.breakpoints.down('sm')]: {
+                    marginTop: 40,
+                    marginBottom: 40
+                }
+            },
+            profileSubtitle: {
+                marginTop: 20,
+                marginBottom: 20
+            }
+        }));
+
+        const classes = styles();
+
+        return (
+            <div className={classes.root}>
+                <Typography variant="h4" align='center' className={classes.profileHeading}>
+                    Your Profile
+                </Typography>
+                <Typography variant='body1' align='center' className={classes.profileSubtitle}>
+                Setup your profile. This is how the world will see you.
+                </Typography>
+            </div>
+        )
+    }
+
+    componentDidMount() {
+    }
+
     render() {
+        
         return (
             <div>
                 <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
@@ -23,21 +145,52 @@ export default class Profile extends React.Component {
                     </Toolbar>
                 </AppBar>
 
-                <Grid container direction="row" justify='center' align='center'>
+                <this.profileHeading/>
 
-                    <Grid item xs={12} sm={6} direction="column">
-                        <Typography>
-                            {/* TODO: The name of the user in large font */}
-                        </Typography>
-                        <Typography>
-                            {/*TODO:  The about line of the user */}
-                        </Typography>
+                {/* TODO: Replace InputBase with some other textfield variant */}
+                <Grid container direction="row" style={{paddingRight: 100, paddingLeft: 100}}>
+
+                    <Grid container item xs={12} sm={6} direction="column" justify='center' alignItems='center'>
+                        
+                            <InputBase
+                                onChange={event => this.setState({ userName: event.target.value })}
+                                error={this.state.userNameError}
+                                value={this.state.userName}
+                                placeholder={'Full Name'}
+                                fullWidth
+                                style={{
+                                    fontSize: 26,
+                                    padding: 20,
+                                    fontStyle: 'bold',
+                            }}
+                            inputProps={{style: {textAlign: 'center'}}}
+                            />
+                            <InputBase
+                                onChange={event => this.setState({ userAbout: event.target.value })}
+                                error={this.state.userAboutError}
+                                value={this.state.userAbout}
+                                placeholder={'Tell other something about you'}
+                                fullWidth
+                                multiline
+                                rowsMax={3}
+                                style={{
+                                    padding: 20,
+                                    fontStyle: 'bold',
+                                    textAlign: 'center'
+                                }}
+                            inputProps={{ style: { textAlign: 'center' } }}
+                        />
+                        
+                        <Button variant='contained' color='primary' onClick={() => this.handleProfileSubmit()}>
+                            Submit
+                        </Button>
+                        
                         {/* TODO: Button to edit profile. New screen opens */}
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
-                        <Avatar variant='circle'>
-                            {/* TODO: Avatar of the user. Click to edit */}
+                    <Grid container item xs={12} sm={6} justify='center' alignItems='center' direction='column'>
+                        <Avatar variant='circle' style={{ height: '160px', width: '160px' }} src={this.state.imageUrl}>
+                            {/* TODO: Avatar of the user. Add icon for initial display */}
                         </Avatar>
                     </Grid>
 
@@ -46,3 +199,4 @@ export default class Profile extends React.Component {
         )
     }
 }
+

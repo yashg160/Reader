@@ -101,6 +101,12 @@ export default class Home extends React.PureComponent{
             throw Error('ERR_DUP_ENTRY');
         else if (content.error) 
             throw Error('ERR_UNKNOWN');
+        
+        const user = content.user;
+        Cookies.set('userId', user.id, { expires: 7 });
+        Cookies.set('userEmal', user.email, { expires: 7 });
+        Cookies.set('userPassword', user.password, { expires: 7 });
+        Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
     }
 
     handleGetStartedClick() {
@@ -148,6 +154,13 @@ export default class Home extends React.PureComponent{
 
         if (content.error) 
             throw Error(content.errorMessage);
+        
+        //No error. So set the cookies, that are available on the entire site
+        const user = content.user;
+        Cookies.set('userId', user.id, { expires: 7 });
+        Cookies.set('userEmal', user.email, { expires: 7 });
+        Cookies.set('userPassword', user.password, { expires: 7 });
+        Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
     }
 
     handleSignInClick() {
@@ -203,7 +216,7 @@ export default class Home extends React.PureComponent{
         if (this.state.loading) {
             return (
                 <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 200}}>
-                    <CircularProgress variant="indeterminate" color="secondary" size={40} justify="center" alignItems="center" />
+                    <CircularProgress variant="indeterminate" color="secondary" size={40}/>
                 </div>
                 
             )
