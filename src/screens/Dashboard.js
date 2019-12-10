@@ -23,6 +23,7 @@ export default class Dashboard extends React.Component {
         Cookies.remove('userId');
         Cookies.remove('userEmail');
         Cookies.remove('userPassword');
+        Cookies.remove('userName');
 
         if (content.error)
             throw Error('An error occurred while logging you out');

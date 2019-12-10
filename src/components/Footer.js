@@ -9,27 +9,13 @@ export default class Footer extends React.PureComponent {
 
     render() {
         return (
-            <div>
+            <div style={{marginTop: 100}}>
                 
-                <Divider variant="middle" style={{ marginBottom: 10 }} />
+                <Divider variant="middle"/>
                 
-                <Typography align="center" variant="body1">
+                <Typography align="center" variant="body1" style={{marginTop: 40, marginBottom: 40}}>
                     Reader blog app. Created by Yash Gupta November 2019.
                 </Typography>
-
-                <Typography align="center" variant="body1">
-                    Navigate
-                </Typography>
-
-                {/* TODO: Setup links for navigation */}
-                <Grid container direction="row" alignItems="center" justify="center" spacing={2}>
-                    <Grid item>
-                        <Link href='/' color="inherit" variant="inherit">
-                            Home
-                        </Link>
-                    </Grid>
-                </Grid>
-                <Divider style={{ marginTop: 10 }} />
             </div>
         )
     }
