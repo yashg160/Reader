@@ -34,7 +34,16 @@ export default class Profile extends React.Component {
             userNameError: false,
             userNameErrorMessage: '',
             userAboutError: false,
-            userAboutErrorMessage: ''
+            userAboutErrorMessage: '',
+            choices: [
+                { tag: 'Entertainment', selected: false },
+                { tag: 'Faishon', selected: false },
+                { tag: 'Fitness', selected: false },
+                { tag: 'Finance', selected: false },
+                { tag: 'Relationships', selected: false},
+                { tag: 'Technology', selected: false}
+            ],
+            selections: 0
         }
         
     }
@@ -55,6 +64,14 @@ export default class Profile extends React.Component {
         //Send a put request to the users endpoint to update the name and about values in the table
         const id = await Cookies.get('userId');
 
+        //Get the choices that have been selected by the user
+        let selectedChoices = [];
+
+        this.state.choices.map((choice) => {
+            if (choice.selected)
+                selectedChoices.push(choice.tag.toLowerCase());
+        });
+
         let rawResponse = await fetch(serverUrl + '/users', {
             method: 'PUT',
             headers: {
@@ -65,7 +82,8 @@ export default class Profile extends React.Component {
             body: JSON.stringify({
                 id: id,
                 name: this.state.userName,
-                about: this.state.userAbout
+                about: this.state.userAbout,
+                choices: selectedChoices
             })
         });
 
@@ -167,53 +185,23 @@ export default class Profile extends React.Component {
         )
     }
 
-    choices() {
-        const choices = ['Entertainment', 'Faishon', 'Fitness', 'Personal Finance', 'Relationships', 'Technology'];
+    handleChoiceClick(index) {
 
-        const styles = makeStyles(theme => ({
-            root: {
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginLeft: 20,
-                marginRight: 20,
-                [theme.breakpoints.up('sm')]: {
-                    marginLeft: 40,
-                    marginRight: 40
-                }
-            },
-            helperText: {
-                marginTop: 20,
-                marginBottom: 20,
-                [theme.breakpoints.up('sm')]: {
-                    marginTop: 40,
-                    marginBottom: 40
-                }
-            }
-        }));
 
-        const classes = styles();
-
-        return (
-            <div >
-                <div className={classes.root}>
-                    {choices.map(choice => (
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={choice}
-                            style={{ margin: 10 }}
-                            color='secondary'
-                        />
-                    ))}
-                </div>
-                
-
-                <Typography variant='h5' align='center' className={classes.helperText}>
-                    Select upto 5 interests
-                </Typography>
-            </div>
-        )
+        if (this.state.selections< 5) {
+            this.state.choices[index].selected = !this.state.choices[index].selected;
+            this.setState({ selections: this.state.selections + 1 });
+            this.forceUpdate();
+        }
+        else if (this.state.selections == 5) {
+            this.state.choices[index].selected = !this.state.choices[index].selected;
+            this.setState({ selections: this.state.selections - 1 });
+            this.forceUpdate();
+        }
+        else {
+            //TODO: Add snackbar to notify user of full choices
+            console.log('Full');
+        }
     }
 
     componentDidMount() {
@@ -272,10 +260,6 @@ export default class Profile extends React.Component {
                             inputProps={{ style: { textAlign: 'center' } }}
                         />
                         
-                        <Button variant='contained' color='primary' onClick={() => this.handleProfileSubmit()}>
-                            Submit
-                        </Button>
-                        
                         {/* TODO: Button to edit profile. New screen opens */}
                     </Grid>
 
@@ -289,7 +273,69 @@ export default class Profile extends React.Component {
 
                 <this.choicesHeading />
                 
-                <this.choices />
+                <div >
+                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[0].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(0)}
+                            color={this.state.choices[0].selected ? 'secondary' : 'default'}
+                        />
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[1].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(1)}
+                            color={this.state.choices[1].selected ? 'secondary' : 'default'}
+                        />
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[2].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(2)}
+                            color={this.state.choices[2].selected ? 'secondary' : 'default'}
+                        />
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[3].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(3)}
+                            color={this.state.choices[3].selected ? 'secondary' : 'default'}
+                        />
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[4].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(4)}
+                            color={this.state.choices[4].selected ? 'secondary' : 'default'}
+                        />
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={this.state.choices[5].tag}
+                            style={{ margin: 10, padding: 20 }}
+                            clickable
+                            onClick={() => this.handleChoiceClick(5)}
+                            color={this.state.choices[5].selected ? 'secondary' : 'default'}
+                        />
+                    </div>
+
+                    <Typography variant='h5' align='center' style={{marginTop: 40}}>
+                        Select upto 5 interests
+                    </Typography>
+
+                </div>
+
+                <Typography align='center'>
+                    <Button variant='contained' size='large' align='center' color='primary' onClick={() => this.handleProfileSubmit()} style={{ marginTop: 80, paddingLeft: 80, paddingRight: 80 }}>
+                        Submit
+                    </Button>
+                </Typography>
                 
                 <Footer/>
             </div>
