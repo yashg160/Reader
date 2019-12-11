@@ -6,11 +6,16 @@ import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
+import Chip from '@material-ui/core/Chip';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
 import { makeStyles } from '@material-ui/core/styles';
 
 
 import InputBase from '@material-ui/core/InputBase';
+
+import Footer from '../components/Footer';
+
 
 import serverUrl from '../config';
 
@@ -125,6 +130,92 @@ export default class Profile extends React.Component {
         )
     }
 
+    choicesHeading() {
+        const styles = makeStyles(theme => ({
+            root: {
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+            },
+            interestsHeading: {
+                marginTop: 80,
+                marginBottom: 40,
+                [theme.breakpoints.down('sm')]: {
+                    marginTop: 40,
+                    marginBottom: 40
+                }
+            },
+            interestSubheading: {
+                marginTop: 20,
+                marginBottom: 20
+            }
+        }));
+
+        const classes = styles();
+
+        return (
+            <div className={classes.root}>
+                <Typography variant='h4' className={classes.interestsHeading}>
+                    Interests
+                </Typography>
+                <Typography varaint='body1' className={classes.interestSubheading}>
+                    Select what you want to read about.
+                </Typography>
+            </div>
+            
+        )
+    }
+
+    choices() {
+        const choices = ['Entertainment', 'Faishon', 'Fitness', 'Personal Finance', 'Relationships', 'Technology'];
+
+        const styles = makeStyles(theme => ({
+            root: {
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginLeft: 20,
+                marginRight: 20,
+                [theme.breakpoints.up('sm')]: {
+                    marginLeft: 40,
+                    marginRight: 40
+                }
+            },
+            helperText: {
+                marginTop: 20,
+                marginBottom: 20,
+                [theme.breakpoints.up('sm')]: {
+                    marginTop: 40,
+                    marginBottom: 40
+                }
+            }
+        }));
+
+        const classes = styles();
+
+        return (
+            <div >
+                <div className={classes.root}>
+                    {choices.map(choice => (
+                        <Chip
+                            icon={<CheckCircleOutlineIcon />}
+                            label={choice}
+                            style={{ margin: 10 }}
+                            color='secondary'
+                        />
+                    ))}
+                </div>
+                
+
+                <Typography variant='h5' align='center' className={classes.helperText}>
+                    Select upto 5 interests
+                </Typography>
+            </div>
+        )
+    }
+
     componentDidMount() {
     }
 
@@ -195,6 +286,12 @@ export default class Profile extends React.Component {
                     </Grid>
 
                 </Grid>
+
+                <this.choicesHeading />
+                
+                <this.choices />
+                
+                <Footer/>
             </div>
         )
     }
