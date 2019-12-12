@@ -100,12 +100,14 @@ export default class Profile extends React.Component {
             .then(() => this.validateAbout())
             .then(() => this.setProfile())
             .then(() => {
-                //TODO: Profile has been successfully created. Move to the dashboard
+                //TODO: Profile has been successfully created. Move to the dashboa
+                //TODO: Add Cookies for the choices selected
                 //Set entered name in cookie
                 Cookies.set('userName', this.state.userName);
                 this.props.history.replace('/dashboard');
             })
             .catch(error => {
+                //TODO: Add Snackbar for error
                 console.error(error);
             });
     }
@@ -187,21 +189,21 @@ export default class Profile extends React.Component {
 
     handleChoiceClick(index) {
 
-
-        if (this.state.selections< 5) {
-            this.state.choices[index].selected = !this.state.choices[index].selected;
-            this.setState({ selections: this.state.selections + 1 });
-            this.forceUpdate();
-        }
-        else if (this.state.selections == 5) {
-            this.state.choices[index].selected = !this.state.choices[index].selected;
+        if (this.state.choices[index].selected) {
+            this.state.choices[index].selected = false;
             this.setState({ selections: this.state.selections - 1 });
-            this.forceUpdate();
         }
         else {
-            //TODO: Add snackbar to notify user of full choices
-            console.log('Full');
+            if (this.state.selections < 5) {
+                this.state.choices[index].selected = true;
+                this.setState({ selections: this.state.selections + 1 });
+            }
+            else {
+                //TODO: Add snackbar to notify user of full choices
+                console.log('Full');
+            }
         }
+        this.forceUpdate();
     }
 
     componentDidMount() {
@@ -214,13 +216,10 @@ export default class Profile extends React.Component {
                 <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
                     <Toolbar>
 
-                        <Typography variant="h6" style={{ flex: 1, color: 'black' }}>
+                        <Typography variant="h6" style={{ flex: 1, color: 'black' }} onClick={() => this.props.history.push('/dashboard')}>
                             Reader
                         </Typography>
 
-                        <Button color="inherit" style={{ textTransform: 'capitalize', fontSize: 18 }}>Write</Button>
-                        <Button color="inherit" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true })}>Sign In</Button>
-                        <Button color="inherit" style={{ backgroundColor: "green", marginLeft: 10, paddingTop: 10, paddingBottom: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ getStartedDialog: true })}>Get Started</Button>
                     </Toolbar>
                 </AppBar>
 
