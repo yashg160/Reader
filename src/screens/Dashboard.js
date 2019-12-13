@@ -5,12 +5,22 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import Cookies from 'js-cookie';
 
 import serverUrl from '../config'; 
 
 export default class Dashboard extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            mainMenu: null,
+        }
+    }
 
     async logout() {
 
@@ -55,9 +65,22 @@ export default class Dashboard extends React.Component {
                             Reader
                         </Typography>
 
-                        <Button color="default" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.handleLogout()}>Logout</Button>
+                        <Avatar variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget})}/>
                     </Toolbar>
                 </AppBar>
+
+                <Menu
+                    id='main-menu'
+                    anchorEl={this.state.mainMenu}
+                    keepMounted
+                    open={Boolean(this.state.mainMenu)}
+                    onClose={() => this.setState({ mainMenu: false })}>
+                    
+                    <MenuItem onClick={() => this.props.history.push('/newArticle')}>New Article</MenuItem>
+                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
+                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
+                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Sign Out</MenuItem>
+                </Menu>
             </div>
             
         )

@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Home from './screens/Home';
 import Dashboard from './screens/Dashboard';
 import Profile from './screens/Profile';
+import WriteArticle from './screens/WriteArticle';
 
 export default class App extends React.PureComponent {
   render() {
@@ -16,6 +17,7 @@ export default class App extends React.PureComponent {
             <Switch>
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/profile" component={Profile} />
+              <Route path="/newArticle" component={WriteArticle}/>
               <Route path="/" component={Home} />
             </Switch>
         </Router>

@@ -60,6 +60,11 @@ export default class Profile extends React.Component {
             throw Error('ERR_ABOUT');
     }
 
+    async validateChoices() {
+        if (this.state.selections == 0)
+            throw Error('ERR_NO_SELECTIONS');
+    }
+
     async setProfile() {
         //Send a put request to the users endpoint to update the name and about values in the table
         const id = await Cookies.get('userId');
@@ -98,6 +103,7 @@ export default class Profile extends React.Component {
 
         this.validateName()
             .then(() => this.validateAbout())
+            .then(() => this.validateChoices())
             .then(() => this.setProfile())
             .then(() => {
                 //TODO: Profile has been successfully created. Move to the dashboa
@@ -107,7 +113,7 @@ export default class Profile extends React.Component {
                 this.props.history.replace('/dashboard');
             })
             .catch(error => {
-                //TODO: Add Snackbar for error
+                //TODO: Add Snackbar for errors
                 console.error(error);
             });
     }
