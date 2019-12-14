@@ -21,6 +21,8 @@ import Input from '@material-ui/core/Input';
 
 import Cookies from 'js-cookie';
 
+import serverUrl from '../config';
+
 export default class WriteArticle extends React.Component{
     constructor(props) {
         super(props);
@@ -70,6 +72,32 @@ export default class WriteArticle extends React.Component{
         3. Insert the article id into the choices tables that the author has selected for it
         */
         
+
+        //Get the choices that have been selected by the user
+        let selectedTags = [];
+
+        this.state.choices.map((choice) => {
+            if (choice.selected)
+                selectedTags.push(choice.tag.toLowerCase());
+        });
+        
+        const rawResponse = await fetch(serverUrl + '/article/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                articleTitle: this.state.title,
+                articleBody: this.state.body,
+                articleTags: selectedTags
+            })
+        });
+
+        let content = rawResponse.json();
+        console.log(content);
 
     }
 
@@ -164,17 +192,16 @@ export default class WriteArticle extends React.Component{
                     aria-labelledby="form-dialog-title"
                     style={{padding: 40}}>
                     
-                    <DialogTitle>
-                        <Typography variant='h5' align='center' style={{ margin: 20 }}>
-                            One Last Thing
-                        </Typography>
-                    </DialogTitle>
                     
-                    <DialogContentText>
-                        <Typography variant='body2' align='center' style={{ margin: 20 }}>
-                            You have almost completed your article. Just one last thing. Select upto 3 tags that make it easier for viewers to find you article on Reader. Think of them as #hashtags.
-                        </Typography>
-                    </DialogContentText>
+                    <Typography variant='h5' align='center' style={{ margin: 20 }}>
+                        One Last Thing
+                    </Typography>
+                
+                
+                    <Typography variant='body2' align='center' style={{ margin: 20 }}>
+                        You have almost completed your article. Just one last thing. Select upto 3 tags that make it easier for viewers to find you article on Reader. Think of them as #hashtags.
+                    </Typography>
+                   
                     
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                         <Chip
