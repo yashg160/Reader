@@ -22,36 +22,21 @@ export default class Dashboard extends React.Component {
         }
     }
 
-    async logout() {
-
-        let rawResponse = await fetch(serverUrl + '/users' + '/logout');
-
-        const content = await rawResponse.json();
-        console.log(content);
+    async handleSignOutClick() {
+        this.setState({ mainMenu: false });
 
         Cookies.remove('userAuthenticated');
         Cookies.remove('userId');
-        Cookies.remove('userEmail');
-        Cookies.remove('userPassword');
-        Cookies.remove('userName');
 
-        if (content.error)
-            throw Error('An error occurred while logging you out');
+        this.props.history.replace('/');
     }
 
-    handleLogout() {
-        console.log('Called handleLogout');
+    componentDidMount() {
+        const userId = Cookies.get('userId');
+        const userAuthenticated = Cookies.get('userAuthenticated');
 
-        this.logout()
-            .then(() => {
-                //Logout scuccessfull. Migrate back to the home page.
-                this.props.history.goBack();
-            })
-            .catch(error => {
-                //TODO
-                //An error occurred. Handle by displaying snackbar
-                console.log(error);
-            });
+        if (userAuthenticated == null || userId == null)
+            this.props.history.replace('/');
     }
 
 
@@ -79,7 +64,7 @@ export default class Dashboard extends React.Component {
                     <MenuItem onClick={() => this.props.history.push('/newArticle')}>New Article</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Sign Out</MenuItem>
+                    <MenuItem onClick={() => this.handleSignOutClick()}>Sign Out</MenuItem>
                 </Menu>
             </div>
             

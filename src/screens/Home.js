@@ -98,8 +98,6 @@ export default class Home extends React.PureComponent{
         
         const user = content.user;
         Cookies.set('userId', user.id, { expires: 7 });
-        Cookies.set('userEmal', user.email, { expires: 7 });
-        Cookies.set('userPassword', user.password, { expires: 7 });
         Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
     }
 

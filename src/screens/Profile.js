@@ -109,7 +109,6 @@ export default class Profile extends React.Component {
                 //TODO: Profile has been successfully created. Move to the dashboa
                 //TODO: Add Cookies for the choices selected
                 //Set entered name in cookie
-                Cookies.set('userName', this.state.userName);
                 this.props.history.replace('/dashboard');
             })
             .catch(error => {
