@@ -76,7 +76,7 @@ export default class Home extends React.PureComponent{
 
     async insertUserIntoTable() {
 
-        let rawResponse = await fetch(serverUrl + `/users`, {
+        let rawResponse = await fetch(serverUrl + `/users/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default class Home extends React.PureComponent{
 
     async findUser() {
         
-        var rawResponse = await fetch(serverUrl + `/users?email=${this.state.signInEmail}&password=${this.state.signInPassword}`, {
+        var rawResponse = await fetch(serverUrl + `/users/signin?email=${this.state.signInEmail}&password=${this.state.signInPassword}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -152,8 +152,6 @@ export default class Home extends React.PureComponent{
         //No error. So set the cookies, that are available on the entire site
         const user = content.user;
         Cookies.set('userId', user.id, { expires: 7 });
-        Cookies.set('userEmal', user.email, { expires: 7 });
-        Cookies.set('userPassword', user.password, { expires: 7 });
         Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
     }
 

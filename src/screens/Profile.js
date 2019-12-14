@@ -77,7 +77,7 @@ export default class Profile extends React.Component {
                 selectedChoices.push(choice.tag.toLowerCase());
         });
 
-        let rawResponse = await fetch(serverUrl + '/users', {
+        let rawResponse = await fetch(serverUrl + '/users/update', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
