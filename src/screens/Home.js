@@ -396,7 +396,7 @@ export default class Home extends React.PureComponent{
                             </Grid>
                         </Grid>
 
-                        <Divider variant="middle" backgroundColor='secondary' style={{ marginTop: 100, marginBottom: 100, height: '4px', marginLeft: 'auto', marginRight: 'auto' }} />
+                        <Divider variant="middle" style={{ marginTop: 100, marginBottom: 100, height: '4px', marginLeft: 'auto', marginRight: 'auto' }} />
 
                         <div style={{ marginTop: 80, marginBottom: 80 }}>
                             <Typography align="center" variant="h1" style={{ marginTop: 20 }}>

@@ -29,7 +29,7 @@ export default class WriteArticle extends React.Component{
 
         this.state = {
             mainMenu: null,
-            tagsDialog: true,
+            tagsDialog: false,
             publishing: false,
             title: '',
             body: '',
@@ -96,9 +96,10 @@ export default class WriteArticle extends React.Component{
             })
         });
 
-        let content = rawResponse.json();
+        let content = await rawResponse.json();
         console.log(content);
 
+        return content.newBlogId;
     }
 
     handlePublishArticle() {
@@ -106,8 +107,9 @@ export default class WriteArticle extends React.Component{
         this.validateTitle()
             .then(() => this.validateBody())
             .then(() => this.publishArticle())
-            .then(() => {
-                console.log('Publish reached');
+            .then((newBlogId) => {
+                this.setState({ publishing: false });
+                this.props.history.replace(`/articles/new/${newBlogId}`)
             })
             .catch((error) => {
                 console.error(error);
@@ -161,7 +163,6 @@ export default class WriteArticle extends React.Component{
                     open={Boolean(this.state.mainMenu)}
                     onClose={() => this.setState({ mainMenu: false })}>
 
-                    <MenuItem onClick={() => this.props.history.push('/newArticle')}>New Article</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Sign Out</MenuItem>

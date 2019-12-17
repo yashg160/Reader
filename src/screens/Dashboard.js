@@ -61,7 +61,7 @@ export default class Dashboard extends React.Component {
                     open={Boolean(this.state.mainMenu)}
                     onClose={() => this.setState({ mainMenu: false })}>
                     
-                    <MenuItem onClick={() => this.props.history.push('/newArticle')}>New Article</MenuItem>
+                    <MenuItem onClick={() => this.props.history.push('/writeArticle')}>New Article</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
                     <MenuItem onClick={() => this.handleSignOutClick()}>Sign Out</MenuItem>
