@@ -165,10 +165,10 @@ export default class Home extends React.PureComponent{
             .then(() => {
                 //User exists. Password verified in previous method. Proceed to next page
                 console.log('Email and password were correct. Will proceed to next screen');
-                //TODO: Move to next page
-                this.setState({ dialogLoading: false, signInDialog: false, successSnackbar: true });
-                this.props.history.push('/dashboard');
                 
+                this.setState({ dialogLoading: false, signInDialog: false, successSnackbar: true });
+                this.props.history.push('/dashboard')
+
             })
             .catch(error => {
                 console.error(error);
