@@ -34,7 +34,9 @@ export default class WriteArticle extends React.Component{
                 { tag: 'Entertainment', selected: false },
                 { tag: 'Faishon', selected: false },
                 { tag: 'Fitness', selected: false },
-                { tag: 'Finance', selected: false }
+                { tag: 'Finance', selected: false },
+                { tag: 'Relationship', selected: false },
+                { tag: 'Technology', selected: false }
             ],
             selections: 0
         }
