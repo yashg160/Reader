@@ -14,6 +14,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Chip from '@material-ui/core/Chip';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+
 import Input from '@material-ui/core/Input';
 
 import Cookies from 'js-cookie';
@@ -26,6 +28,7 @@ export default class WriteArticle extends React.Component{
 
         this.state = {
             mainMenu: null,
+            articleMenu: null,
             tagsDialog: false,
             publishing: false,
             title: '',
@@ -38,8 +41,11 @@ export default class WriteArticle extends React.Component{
                 { tag: 'Relationship', selected: false },
                 { tag: 'Technology', selected: false }
             ],
-            selections: 0
+            selections: 0,
+            selectedImage: null
         }
+
+        this.imageInput = null;
     }
 
     async validateTitle() {
@@ -135,6 +141,31 @@ export default class WriteArticle extends React.Component{
         this.forceUpdate();
     }
 
+    imageSelectHandler = event => {
+        const selectedImage = this.getBase64(event.target.files[0]);
+        this.setState({ selectedImage });
+        this.forceUpdate();
+        //this.setState({ selectedImage: event.target.files[0] });
+        console.log(event.target.files[0]);
+    }
+
+    getBase64(file) {
+        let selectedImage = "";
+        let reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onload = function () {
+            selectedImage = reader.result;
+            console.log(selectedImage);
+            return selectedImage;
+        };
+
+        reader.onerror = function (error) {
+            console.log('Base64 Error: ', error);
+        };
+    }
+
     render() {
         return (
             <div>
@@ -150,6 +181,8 @@ export default class WriteArticle extends React.Component{
                                 Publish
                             </Button>
                         </Typography>
+
+                        <MoreHorizIcon fontSize='large' color='primary' style={{ marginRight: 12 }} onClick={(event) => this.setState({ articleMenu: event.currentTarget})} />
 
                         <Avatar variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget })} />
                     </Toolbar>
@@ -167,7 +200,41 @@ export default class WriteArticle extends React.Component{
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Sign Out</MenuItem>
                 </Menu>
 
-                <div style={{marginLeft: 240, marginRight: 240, paddingTop: 40}}>
+                <Menu
+                    id='article-menu'
+                    anchorEl={this.state.articleMenu}
+                    keepMounted
+                    open={Boolean(this.state.articleMenu)}
+                    onClose={() => this.setState({ articleMenu: false })}>
+
+                    <MenuItem onClick={() => {
+                        this.imageInput.click();
+                        this.setState({ articleMenu: false });
+                    }}>
+                        Change Featured Image
+                        
+                    </MenuItem>
+
+                </Menu>
+
+                <input
+                    style={{ display: 'none' }}
+                    type='file'
+                    onChange={this.imageSelectHandler}
+                    ref={imageInput => this.imageInput = imageInput}
+                />
+
+                
+                
+
+                <div style={{ marginLeft: 240, marginRight: 240, paddingTop: 40 }}>
+                    
+                    <img
+                        src={this.state.selectedImage}
+                        width='100px'
+                        height='100px'
+                    />
+
                     <Input
                         placeholder='Title'
                         style={{ fontSize: 36, marginTop: 80, marginBottom: 20 }}
