@@ -21,6 +21,7 @@ export default class Article extends React.Component{
             loading: true,
             mainMenu: null,
             articleBody: '',
+            articleImage: '',
             articleLikes: null,
             articleReads: null,
             articleTitle: '',
@@ -52,15 +53,14 @@ export default class Article extends React.Component{
 
     }
 
-
     componentDidMount() {
         
         this.getArticle()
             .then((article) => {
                 // Article contains the details about the article. Set these is state to use them in render
-
-                const { articleBody, articleLikes, articleReads, articleTitle, authorAbout, authorName, authorAvatar } = article;
-                this.setState({ articleTitle, articleBody, articleLikes, articleReads, authorName, authorAbout, authorAvatar, loading: false });
+                
+                const { articleBody, articleImage, articleLikes, articleReads, articleTitle, authorAbout, authorName, authorAvatar } = article;
+                this.setState({ articleTitle, articleImage, articleBody, articleLikes, articleReads, authorName, authorAbout, authorAvatar, loading: false });
 
             })
             .catch(error => console.error(error));
@@ -68,6 +68,7 @@ export default class Article extends React.Component{
     }
 
     render() {
+
         if (this.state.loading) {
             return (
                 <CircularProgress color="secondary" style={{ marginLeft: '50%', marginTop: '25%'}}/>
@@ -115,19 +116,23 @@ export default class Article extends React.Component{
                         By {this.state.authorName}
                     </Typography>
                     
-                    
+                    <img
+                        src={this.state.articleImage}
+                        style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
+                    />
                         
-                        {this.state.articleBody.split('\n').map((i, key) => {
-                            return (
-                                <div>
-                                    <br></br>
-                                    <Typography key={key}>
-                                        {i}
-                                    </Typography>
-                                </div>
-                                
-                            )
-                        })}
+                    {this.state.articleBody.split('\n').map((i, key) => {
+                        return (
+                            <div>
+                                <br></br>
+                                <Typography key={key}>
+                                    {i}
+                                </Typography>
+                            </div>
+                            
+                        )
+                    })}
+                    
 
                 </div>
             </div>

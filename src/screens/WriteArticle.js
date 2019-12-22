@@ -20,6 +20,9 @@ import Input from '@material-ui/core/Input';
 
 import Cookies from 'js-cookie';
 
+import imageCompression from 'browser-image-compression';
+
+
 import serverUrl from '../config';
 
 export default class WriteArticle extends React.Component{
@@ -42,7 +45,8 @@ export default class WriteArticle extends React.Component{
                 { tag: 'Technology', selected: false }
             ],
             selections: 0,
-            selectedImage: null
+            encodedImage: '',
+            blobImage: null
         }
 
         this.imageInput = null;
@@ -97,7 +101,8 @@ export default class WriteArticle extends React.Component{
                 userId: userId,
                 articleTitle: this.state.title,
                 articleBody: this.state.body,
-                articleTags: selectedTags
+                articleTags: selectedTags,
+                articleImage: this.state.encodedImage
             })
         });
 
@@ -142,28 +147,15 @@ export default class WriteArticle extends React.Component{
     }
 
     imageSelectHandler = event => {
-        const selectedImage = this.getBase64(event.target.files[0]);
-        this.setState({ selectedImage });
-        this.forceUpdate();
-        //this.setState({ selectedImage: event.target.files[0] });
+        //this.getBase64(event.target.files[0]);
+
         console.log(event.target.files[0]);
-    }
 
-    getBase64(file) {
-        let selectedImage = "";
-        let reader = new FileReader();
-
-        reader.readAsDataURL(file);
-
-        reader.onload = function () {
-            selectedImage = reader.result;
-            console.log(selectedImage);
-            return selectedImage;
-        };
-
-        reader.onerror = function (error) {
-            console.log('Base64 Error: ', error);
-        };
+        imageCompression.getDataUrlFromFile(event.target.files[0])
+            .then(encodedImage => {
+                this.setState({ encodedImage });
+                console.log(encodedImage);
+            });
     }
 
     render() {
@@ -224,17 +216,30 @@ export default class WriteArticle extends React.Component{
                     ref={imageInput => this.imageInput = imageInput}
                 />
 
-                
-                
+                {
+                    this.state.encodedImage == '' ? 
+                    
+                    <div style={{ alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
+                        <Typography variant='h6' align='center'>
+                            No cover image selected
+                        </Typography>
+
+                        <Typography variant='body1' align='center'>
+                            Here you can preview the cover image for your article. Others will see this image
+                        </Typography>
+                    </div>
+                :
+                    <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex',  marginTop: 40 }}>
+
+                        <img
+                            src={this.state.encodedImage}
+                            style={{ objectFit: 'cover', width: '60%', height: 'auto' }}
+                        />
+                    </div>
+                }
 
                 <div style={{ marginLeft: 240, marginRight: 240, paddingTop: 40 }}>
                     
-                    <img
-                        src={this.state.selectedImage}
-                        width='100px'
-                        height='100px'
-                    />
-
                     <Input
                         placeholder='Title'
                         style={{ fontSize: 36, marginTop: 80, marginBottom: 20 }}

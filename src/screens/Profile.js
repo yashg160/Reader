@@ -40,7 +40,7 @@ export default class Profile extends React.Component {
                 { tag: 'Faishon', selected: false },
                 { tag: 'Fitness', selected: false },
                 { tag: 'Finance', selected: false },
-                { tag: 'Relationships', selected: false},
+                { tag: 'Relationship', selected: false},
                 { tag: 'Technology', selected: false}
             ],
             selections: 0
