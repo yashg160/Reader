@@ -134,7 +134,7 @@ export default class WriteArticle extends React.Component{
             this.setState({ selections: this.state.selections - 1 });
         }
         else {
-            if (this.state.selections < 3) {
+            if (this.state.selections < 1) {
                 this.state.choices[index].selected = true;
                 this.setState({ selections: this.state.selections + 1 });
             }
@@ -233,7 +233,7 @@ export default class WriteArticle extends React.Component{
 
                         <img
                             src={this.state.encodedImage}
-                            style={{ objectFit: 'cover', width: '60%', height: 'auto' }}
+                            style={{ objectFit: 'cover', width: '40%', height: 'auto' }}
                         />
                     </div>
                 }

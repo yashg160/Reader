@@ -8,6 +8,10 @@ import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import GridListTileBar from '@material-ui/core/GridListTileBar';
+
 import Cookies from 'js-cookie';
 
 import serverUrl from '../config'; 
@@ -18,8 +22,11 @@ export default class Dashboard extends React.Component {
         super(props);
 
         this.state = {
+            loading: true,
             mainMenu: null,
-            userId:'',
+            userId: '',
+            articles: null,
+            tags: null
         }
     }
 
@@ -44,6 +51,8 @@ export default class Dashboard extends React.Component {
         let content = await rawResponse.json();
         console.log(content);
 
+        this.setState({ articles: content });
+
     }
 
     componentDidMount() {
@@ -57,12 +66,17 @@ export default class Dashboard extends React.Component {
         this.setState({ userId });
 
         this.getArticlesForUser(userId)
-            .then(() => console.log('Done'))
+            .then(() => {
+                this.setState({ tags: Object.keys(this.state.articles), loading: false });
+            })
             .catch(error => console.error(error));
     }
 
 
     render() {
+        if (this.state.loading)
+            return <p>Loading...</p>
+        
         return (
             <div>
                 <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
@@ -75,6 +89,25 @@ export default class Dashboard extends React.Component {
                         <Avatar variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget})}/>
                     </Toolbar>
                 </AppBar>
+
+                 
+                <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={5}>
+
+                    {
+                        Object.keys(this.state.articles).map((tag) => this.state.articles[tag].map(article => (
+
+                            <GridListTile key={article.id}>
+                                <img src={article.image} />
+
+                                <GridListTileBar
+                                    title={article.title}
+                                />
+                            </GridListTile>
+                        
+                        )))
+                    }
+                </GridList>
+                
 
                 <Menu
                     id='main-menu'
@@ -89,20 +122,9 @@ export default class Dashboard extends React.Component {
                     <MenuItem onClick={() => this.handleSignOutClick()}>Sign Out</MenuItem>
                 </Menu>
 
-                <Grid>
+                
+                
 
-                    <Grid item direction='column' justify='center' alignItems='center'>
-
-                    </Grid>
-
-                    <Grid item direction='column' justify='center' alignItems='center'>
-
-                    </Grid>
-
-                    <Grid item direction='column' justify='center' alignItems='center'>
-
-                    </Grid>
-                </Grid>
             </div>
             
         )
