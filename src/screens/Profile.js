@@ -21,6 +21,8 @@ import serverUrl from '../config';
 
 import Cookies from 'js-cookie';
 
+import imageCompression from 'browser-image-compression';
+
 
 
 export default class Profile extends React.Component {
@@ -43,8 +45,12 @@ export default class Profile extends React.Component {
                 { tag: 'Relationship', selected: false},
                 { tag: 'Technology', selected: false}
             ],
-            selections: 0
+            selections: 0,
+            reader: new FileReader(),
+            encodedImage: ''
         }
+
+        this.imageInput = null;
         
     }
 
@@ -88,7 +94,8 @@ export default class Profile extends React.Component {
                 id: id,
                 name: this.state.userName,
                 about: this.state.userAbout,
-                choices: selectedChoices
+                choices: selectedChoices,
+                avatar: this.state.encodedImage
             })
         });
 
@@ -211,6 +218,29 @@ export default class Profile extends React.Component {
         this.forceUpdate();
     }
 
+    imageSelectHandler = event => {
+
+        console.log(event.target.files[0]);
+
+        var reader = this.state.reader;
+
+        imageCompression(event.target.files[0], {
+            maxSizeMB: 1
+        })
+            .then((file) => {
+                console.log(file);
+                // File is of Blob type. Convert to base64 for displaying and uploading
+
+                reader.addEventListener('loadend', () => {
+                    console.log(reader.result);
+                    this.setState({ encodedImage: reader.result });
+                });
+
+                reader.readAsDataURL(file);
+            })
+            .catch((error) => console.error(error));
+    }
+
     componentDidMount() {
     }
 
@@ -268,9 +298,20 @@ export default class Profile extends React.Component {
                     </Grid>
 
                     <Grid container item xs={12} sm={6} justify='center' alignItems='center' direction='column'>
-                        <Avatar variant='circle' style={{ height: '160px', width: '160px' }} src={this.state.imageUrl}>
+                        <Avatar variant='circle' style={{ height: '160px', width: '160px' }} src={this.state.encodedImage} alt='Image'>
                             {/* TODO: Avatar of the user. Add icon for initial display */}
                         </Avatar>
+
+                        <Button variant='outlined' color='secondary' onClick={() => this.imageInput.click()}>
+                            Select Picture
+                            </Button>
+                        <input
+                            style={{ display: 'none' }}
+                            type='file'
+                            onChange={this.imageSelectHandler}
+                            ref={imageInput => this.imageInput = imageInput}
+                        />
+
                     </Grid>
 
                 </Grid>

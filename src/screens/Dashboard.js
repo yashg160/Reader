@@ -24,9 +24,9 @@ export default class Dashboard extends React.Component {
         this.state = {
             loading: true,
             mainMenu: null,
-            userId: '',
+            userAvatar: '',
+            userName: '',
             articles: null,
-            tags: null
         }
     }
 
@@ -55,6 +55,20 @@ export default class Dashboard extends React.Component {
 
     }
 
+    async getUser(userId) {
+        console.log(userId);
+        const url = `${serverUrl}/users?userId=${userId}`;
+
+        const rawResponse = await fetch(url, {
+            method: 'GET'
+        });
+
+        const content = await rawResponse.json()
+        console.log(content);
+
+        return content;
+    }
+
     componentDidMount() {
         const userId = Cookies.get('userId');
         const userAuthenticated = Cookies.get('userAuthenticated');
@@ -63,13 +77,14 @@ export default class Dashboard extends React.Component {
         if (userAuthenticated == null || userId == null)
             this.props.history.replace('/');
         
-        this.setState({ userId });
 
         this.getArticlesForUser(userId)
-            .then(() => {
-                this.setState({ tags: Object.keys(this.state.articles), loading: false });
-            })
-            .catch(error => console.error(error));
+            .then(() => this.getUser(userId))
+            .then((user) => this.setState({ userAvatar: user.user.avatar, userName: user.user.name, loading: false }))
+            .catch(error => {
+                console.error(error);
+                this.setState({ loading: false });
+            });
     }
 
 
@@ -86,7 +101,7 @@ export default class Dashboard extends React.Component {
                             Reader
                         </Typography>
 
-                        <Avatar variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget})}/>
+                        <Avatar src={this.state.userAvatar} variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget})}/>
                     </Toolbar>
                 </AppBar>
 
