@@ -132,7 +132,7 @@ export default class Dashboard extends React.Component {
                     onClose={() => this.setState({ mainMenu: false })}>
                     
                     <MenuItem onClick={() => this.props.history.push('/writeArticle')}>New Article</MenuItem>
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
+                    <MenuItem onClick={() => this.props.history.push('/editProfile')}>Edit Profile</MenuItem>
                     <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
                     <MenuItem onClick={() => this.handleSignOutClick()}>Sign Out</MenuItem>
                 </Menu>
