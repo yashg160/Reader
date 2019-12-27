@@ -21,7 +21,7 @@ export default class App extends React.PureComponent {
               <Route path="/editProfile" component={EditProfile} />
               <Route path="/profile" component={Profile} />
               <Route path="/writeArticle" component={WriteArticle} />
-              <Route path="/articles/new/:blogId" component={Article} />
+              <Route path="/articles/:articleId" component={Article} />
               <Route path="/" component={Home} />
             </Switch>
         </Router>

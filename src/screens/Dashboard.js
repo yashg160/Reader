@@ -27,6 +27,7 @@ export default class Dashboard extends React.Component {
             userAvatar: '',
             userName: '',
             articles: null,
+            tags: null
         }
     }
 
@@ -51,8 +52,8 @@ export default class Dashboard extends React.Component {
         let content = await rawResponse.json();
         console.log(content);
 
-        this.setState({ articles: content });
-
+        this.setState({ articles: content, tags: Object.keys(content) });
+        return;
     }
 
     async getUser(userId) {
@@ -80,7 +81,7 @@ export default class Dashboard extends React.Component {
 
         this.getArticlesForUser(userId)
             .then(() => this.getUser(userId))
-            .then((user) => this.setState({ userAvatar: user.user.avatar, userName: user.user.name, loading: false }))
+            .then((content) => this.setState({ userAvatar: content.user.avatar, userName: content.user.name, loading: false }))
             .catch(error => {
                 console.error(error);
                 this.setState({ loading: false });
@@ -89,6 +90,7 @@ export default class Dashboard extends React.Component {
 
 
     render() {
+
         if (this.state.loading)
             return <p>Loading...</p>
         
@@ -105,23 +107,64 @@ export default class Dashboard extends React.Component {
                     </Toolbar>
                 </AppBar>
 
-                 
-                <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={5}>
+                {
+                    this.state.tags.map((tag) => (
+
+                        <div style={{margin: 20}} key={tag}>
+                            <Typography variant='h6'>
+                                {tag}
+                            </Typography>
+
+                            <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} spacing={12} cols={5}>
+                                {
+                                    this.state.articles[tag].map((article) => (
+                                        
+                                        <GridListTile key={article.id}
+                                            onClick={() => this.props.history.push(`/articles/${article.id}`)}
+                                            style={{height: '200px', width: '300px'}}>
+                                            <img src={article.image} />
+
+                                            <GridListTileBar
+                                                title={article.title}
+                                                style={{ padding: 4 }}
+                                                actionIcon={<Avatar src={article.author.avatar}></Avatar>}
+                                                subtitle={article.author.name}
+                                            >
+                                            </GridListTileBar>
+                                        </GridListTile>
+                                    ))
+                                }
+                                
+                            </GridList>
+                        </div>
+                
+                    ))
+                 }
+                {/* <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={5}>
 
                     {
-                        Object.keys(this.state.articles).map((tag) => this.state.articles[tag].map(article => (
+                        indices.map((i => (
+                            <div>
+                                <Typography variant='body1'>
+                                    {this.state.tags[i].toUpperCase()}
+                                </Typography>
 
-                            <GridListTile key={article.id}>
-                                <img src={article.image} />
+                                {
+                                    this.state.articles[this.state.tags[i]].map((article) => (
+                                        <GridListTile key={article.id}>
+                                            <img src={article.image} />
 
-                                <GridListTileBar
-                                    title={article.title}
-                                />
-                            </GridListTile>
-                        
+                                            <GridListTileBar
+                                                title={article.title}
+                                            />
+                                        </GridListTile>
+                                    ))
+                                }
+                            </div>
+                
                         )))
                     }
-                </GridList>
+                </GridList> */}
                 
 
                 <Menu

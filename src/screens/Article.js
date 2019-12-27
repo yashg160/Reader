@@ -35,9 +35,9 @@ export default class Article extends React.Component{
 
     async getArticle() {
 
-        const blogId = this.props.match.params.blogId;
+        const articleId = this.props.match.params.articleId;
 
-        let rawResponse = await fetch(serverUrl + `/article?blogId=${blogId}`, {
+        let rawResponse = await fetch(serverUrl + `/article?articleId=${articleId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

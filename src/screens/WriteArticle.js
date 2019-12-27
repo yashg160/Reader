@@ -117,14 +117,14 @@ export default class WriteArticle extends React.Component{
         this.validateTitle()
             .then(() => this.validateBody())
             .then(() => this.publishArticle())
-            .then((newBlogId) => {
+            .then((newArticleId) => {
                 this.setState({ publishing: false });
-                this.props.history.replace(`/articles/new/${newBlogId}`)
+                this.props.history.replace(`/articles/${newArticleId}`);
             })
             .catch((error) => {
                 console.error(error);
                 //TODO: Snackbar for errors
-        })
+            });
     }
 
     handleChoiceClick(index) {
