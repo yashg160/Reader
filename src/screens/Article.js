@@ -11,6 +11,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import serverUrl from '../config';
 
+import Cookies from 'js-cookie';
+
+
 
 export default class Article extends React.Component{
 
@@ -20,6 +23,8 @@ export default class Article extends React.Component{
         this.state = {
             loading: true,
             mainMenu: null,
+            userAvatar: '',
+            userName: '',
             articleBody: '',
             articleImage: '',
             articleLikes: null,
@@ -53,17 +58,39 @@ export default class Article extends React.Component{
 
     }
 
+    async getUser(userId) {
+        console.log(userId);
+        const url = `${serverUrl}/users?userId=${userId}`;
+
+        const rawResponse = await fetch(url, {
+            method: 'GET'
+        });
+
+        const content = await rawResponse.json()
+        console.log(content);
+
+        this.setState({ userAvatar: content.user.avatar ? content.user.avatar : '', userName: content.user.name });
+        return;
+    }
+
     componentDidMount() {
-        
-        this.getArticle()
+        const userId = Cookies.get('userId');
+
+        this.getUser(userId)
+            .then(() => this.getArticle())
             .then((article) => {
                 // Article contains the details about the article. Set these is state to use them in render
                 
-                const { articleBody, articleImage, articleLikes, articleReads, articleTitle, authorAbout, authorName, authorAvatar } = article;
+                const { articleBody, articleImage, articleLikes, articleReads, articleTitle } = article;
+                const { authorName, authorAbout, authorAvatar } = article.author;
+                
                 this.setState({ articleTitle, articleImage, articleBody, articleLikes, articleReads, authorName, authorAbout, authorAvatar, loading: false });
-
+                console.log(this.state);
             })
-            .catch(error => console.error(error));
+            .catch(error => {
+                console.error(error);
+                this.setState({ loading: false });
+            });
 
     }
 

@@ -38,7 +38,7 @@ import Cookies from 'js-cookie';
 
 
 
-export default class Home extends React.PureComponent{
+export default class Home extends React.Component{
 
     constructor() {
         super();
@@ -203,6 +203,15 @@ export default class Home extends React.PureComponent{
     }
     
     render() {
+
+        const tags = [
+            'Entertainment',
+            'Faishon',
+            'Finance',
+            'Fitness',
+            'Relationship',
+            'Technology'
+        ]
         
         const theme = createMuiTheme({
             palette: {
@@ -210,11 +219,14 @@ export default class Home extends React.PureComponent{
                     main: '#673ab7',
                 },
                 secondary: {
-                    light: '#ffcf33',
-                    main: '#ffc400',
-                    contrastText: '#f44336',
+                    light: '#828282',
+                    main: '#000',
+                    contrastText: '#fff',
                 },
             },
+            typography: {
+                fontFamily: 'Nunito'
+            }
         });
         if (this.state.loading) {
             return (
@@ -229,11 +241,11 @@ export default class Home extends React.PureComponent{
             <ThemeProvider theme={theme}>
                 <div>
                     <AppBar position="sticky" style={{ backgroundColor: 'white', }}>
-                        <Toolbar>
+                        <Toolbar style={{paddingLeft: 80, paddingRight: 80}}>
 
                             <Typography variant="h6" style={{ flex: 1, color: 'black' }} onClick={() => this.props.history.push('/dashboard')}>
                                 Reader
-                    </Typography>
+                            </Typography>
 
                             <Button color="default" style={{ textTransform: 'capitalize', fontSize: 18 }}>Write</Button>
                             <Button color="default" style={{ marginRight: 10, textTransform: 'capitalize', fontSize: 18 }} onClick={() => this.setState({ signInDialog: true })}>Sign In</Button>
@@ -242,127 +254,71 @@ export default class Home extends React.PureComponent{
                     </AppBar>
 
                     <div style={{ marginLeft: 120, marginRight: 120 }}>
+
                         <Typography align="center" variant="h1" style={{ marginTop: 80 }}>
                             Read about what matters to you
-                    </Typography>
+                        </Typography>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: 40, marginBottom: 40 }}>
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                                color='secondary'
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
-                            <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Clickable deletable"
-                                style={{ margin: 10 }}
-                            />
+                            {
+                                tags.map((tag) => (
+                                    <Chip
+                                        color='secondary'
+                                        icon={<CheckCircleOutlineIcon color='primary' fontSize='large'/>}
+                                        label={<Typography variant='h6'>{tag}</Typography>}
+                                        style={{ margin: 16, padding: 32, borderRadius: 32, boxShadow: '4px 4px 4px 4px rgba(0,0,0,0.4)' }}
+                                    />
+                                ))
+                            }
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginTop: 40, marginBottom: 40 }}>
-                            <Typography variant="h6" align="center">
+                            <Typography variant="h5" align="center">
                                 We offer a wide range of topics. Read anything you want.
-                        </Typography>
+                            </Typography>
 
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginTop: 40 }}>
-                            <Button variant="contained" color='primary' style={{ paddingTop: 20, paddingBottom: 20, paddingLeft: 80, paddingRight: 80 }}>
+                            <Button variant="contained" color='primary' style={{ paddingTop: 20, paddingBottom: 20, paddingLeft: 100, paddingRight: 100, textTransform: 'capitalize', fontSize: 24, borderRadius: 30, boxShadow: '4px 4px 4px 4px rgba(0,0,0,0.2)' }}>
                                 Get Started
-                        </Button>
+                            </Button>
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 'auto', marginRight: 'auto', marginTop: 20, marginBottom: 80 }}>
-                            <Typography variant="body1" align="center">
+                            <Typography variant="body1" align="center" style={{fontSize: 20}}>
                                 Already have an account? <Link to="#">Sign In</Link>
                             </Typography>
                         </div>
 
+                        <Divider variant="middle" style={{ marginTop: 100, marginBottom: 100, height: '4px', marginLeft: 'auto', marginRight: 'auto' }}/>
+
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: 100, marginBottom: 40 }}>
                             <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Many topics"
-                                style={{ margin: 10, backgroundColor: 'transparent' }}
+                                color='primary'
+                                variant='outlined'
+                                icon={<CheckCircleOutlineIcon fontSize = 'large' />}
+                                label={<Typography variant='h6'>Many Topics</Typography>}
+                                style={{ margin: 16, padding: 32, borderRadius: 32, boxShadow: '2px rgba(0,0,0,0.6)' }}
                             />
                             <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Free reading"
-                                style={{ margin: 10, backgroundColor: 'transparent' }}
+                                color='primary'
+                                variant='outlined'
+                                icon={<CheckCircleOutlineIcon fontSize='large' />}
+                                label={<Typography variant='h6'>Free Reading</Typography>}
+                                style={{ margin: 16, padding: 32, borderRadius: 32 }}
                             />
                             <Chip
-                                icon={<CheckCircleOutlineIcon />}
-                                label="Free writing"
-                                style={{ margin: 10, backgroundColor: 'transparent' }}
+                                color='primary'
+                                variant='outlined'
+                                icon={<CheckCircleOutlineIcon fontSize='large' />}
+                                label={<Typography variant='h6'>Free Writing</Typography>}
+                                style={{ margin: 16, padding: 32, borderRadius: 32 }}
                             />
                             <Chip
-                                label={<Typography variant="h6">On Reader, all for you.</Typography>}
-                                style={{ margin: 10, backgroundColor: 'transparent' }}
+                                icon={<CheckCircleOutlineIcon fontSize='large' />}
+                                label={<Typography variant='h5'>On Reader, all for you.</Typography>}
+                                style={{ margin: 20, padding: 36, borderRadius: 36, backgroundColor:'transparent' }}
                             />
                         </div>
 
@@ -379,20 +335,20 @@ export default class Home extends React.PureComponent{
 
                             <Grid container item alignItems="center" justify='center' xs={12} md={6}>
 
-                                <Button variant="contained" color='primary' style={{ paddingTop: 20, paddingBottom: 20, paddingLeft: 100, paddingRight: 100 }}>
+                                <Button variant="contained" color='primary' style={{ paddingTop: 20, paddingBottom: 20, paddingLeft: 100, paddingRight: 100, fontSize: 24, textTransform: 'capitalize', borderRadius: 30, boxShadow: '4px 4px 4px 4px rgba(0,0,0,0.2)'  }}>
                                     Get Started
-                            </Button>
+                                </Button>
 
                             </Grid>
 
                             <Grid container item alignItems='center' justify='center' xs={12} md={6}>
-                                <Typography variant="h5" align='center'>
+                                <Typography variant="h4" align='center'>
                                     We are different than others
-                            </Typography>
+                                </Typography>
 
-                                <Typography variant="body1" align='center' style={{ marginTop: 40 }}>
+                                <Typography variant="body1" align='center' style={{ marginTop: 40, fontSize: 20 }}>
                                     Reader is not like any other platform on the internet. Our sole purpose is to help you find compelling ideas, knowledge, and perspectives. We don’t serve ads—we serve you, the curious reader who loves to learn new things. Reader is home to thousands of independent voices, and we combine humans and technology to find the best reading for you—and filter out the rest.
-                        </Typography>
+                                </Typography>
                             </Grid>
                         </Grid>
 

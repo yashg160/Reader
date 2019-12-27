@@ -14,14 +14,13 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Chip from '@material-ui/core/Chip';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-
 import Input from '@material-ui/core/Input';
 
 import Cookies from 'js-cookie';
 
 import imageCompression from 'browser-image-compression';
 
+import Footer from '../components/Footer';
 
 import serverUrl from '../config';
 
@@ -30,7 +29,10 @@ export default class WriteArticle extends React.Component{
         super(props);
 
         this.state = {
+            loading: true,
             mainMenu: null,
+            userName: null,
+            userAvatar: null,
             articleMenu: null,
             tagsDialog: false,
             publishing: false,
@@ -158,25 +160,56 @@ export default class WriteArticle extends React.Component{
             });
     }
 
+    async getUser(userId) {
+        console.log(userId);
+        const url = `${serverUrl}/users?userId=${userId}`;
+
+        const rawResponse = await fetch(url, {
+            method: 'GET'
+        });
+
+        const content = await rawResponse.json()
+        console.log(content);
+
+        return content;
+    }
+
+    componentDidMount() {
+        const userId = Cookies.get('userId');
+
+        this.getUser(userId)
+        .then((content) => this.setState({ userAvatar: content.user.avatar, userName: content.user.name, loading: false}))
+    }
+
     render() {
+        if (this.state.loading)
+            return <CircularProgress color="secondary" style={{ marginLeft: '50%', marginTop: '25%' }} />
         return (
             <div>
                 <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
-                    <Toolbar>
+                    <Toolbar style={{alignItems: 'center'}}>
 
-                        <Typography variant="h6" style={{ flex: 1, color: 'black' }}>
-                            Reader
-                        </Typography>
+                        
+                            <Typography variant="h6" style={{ flex: 1, color: 'black' }}>
+                                Reader
+                            </Typography>
+                        
 
-                        <Typography style={{flex: 1}}>
-                            <Button variant='contained' size='small' color='primary' onClick={() => this.setState({ tagsDialog: true})}>
-                                Publish
-                            </Button>
-                        </Typography>
-
-                        <MoreHorizIcon fontSize='large' color='primary' style={{ marginRight: 12 }} onClick={(event) => this.setState({ articleMenu: event.currentTarget})} />
-
-                        <Avatar variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget })} />
+                        
+                            <Typography align='center' style={{ flex: 1 }}>
+                                <Button variant='contained' size='small' color='primary' onClick={() => this.setState({ tagsDialog: true })}>
+                                    Publish
+                                </Button>
+                            </Typography>
+                        
+                        <div style={{flex: 1, alignItems: 'center'}}>
+                            <Avatar
+                                src={this.state.userAvatar}
+                                variant='circle'
+                                style={{ height: '40px', width: '40px', }}
+                                onClick={(event) => this.setState({ mainMenu: event.currentTarget })} />
+                        </div>
+                        
                     </Toolbar>
                 </AppBar>
 
@@ -227,14 +260,25 @@ export default class WriteArticle extends React.Component{
                         <Typography variant='body1' align='center'>
                             Here you can preview the cover image for your article. Others will see this image
                         </Typography>
+                            
+                        <Typography align='center'>
+                                <Button
+                                    variant='outlined'
+                                    color='secondary'
+                                    style={{ marginTop: 20, marginBottom: 20 }}
+                                    onClick={(event) => this.setState({ articleMenu: event.currentTarget })}>
+                                Select Image
+                            </Button>
+                        </Typography>
+                        
                     </div>
                 :
-                    <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex',  marginTop: 40 }}>
+                    <div style={{ alignItems: 'center', justifyContent: 'center', display: 'flex', marginTop: 40 }}>
 
                         <img
                             src={this.state.encodedImage}
                             style={{ objectFit: 'cover', width: '40%', height: 'auto' }}
-                        />
+                            />
                     </div>
                 }
 
@@ -329,6 +373,7 @@ export default class WriteArticle extends React.Component{
 
                 </Dialog>
                 
+                <Footer/>
             </div>
         )
     }

@@ -8,13 +8,27 @@ import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
+import Link from '@material-ui/core/Link';
+
+
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
 
+import PersonIcon from '@material-ui/icons/Person';
+
 import Cookies from 'js-cookie';
 
 import serverUrl from '../config'; 
+
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+import Footer from '../components/Footer';
+
 
 export default class Dashboard extends React.Component {
 
@@ -24,7 +38,7 @@ export default class Dashboard extends React.Component {
         this.state = {
             loading: true,
             mainMenu: null,
-            userAvatar: '',
+            userAvatar: null,
             userName: '',
             articles: null,
             tags: null
@@ -91,99 +105,151 @@ export default class Dashboard extends React.Component {
 
     render() {
 
+        const theme = createMuiTheme({
+            palette: {
+                primary: {
+                    main: '#673ab7',
+                },
+                secondary: {
+                    light: '#828282',
+                    main: '#000',
+                    contrastText: '#fff',
+                },
+            },
+            typography: {
+                fontFamily: 'Nunito'
+            }
+        });
+
+
         if (this.state.loading)
-            return <p>Loading...</p>
+            return (
+                <Backdrop
+                    open={this.state.loading}
+                >
+                    <CircularProgress color='white' />
+                </Backdrop>
+            )
         
         return (
-            <div>
-                <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
-                    <Toolbar>
+            <ThemeProvider theme={theme}>
+                <div>
+                    <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
+                        <Toolbar style={{paddingLeft: 80, paddingRight: 80}}>
 
-                        <Typography variant="h6" style={{ flex: 1, color: 'black' }}>
-                            Reader
-                        </Typography>
-
-                        <Avatar src={this.state.userAvatar} variant='circle' style={{ height: '40px', width: '40px' }} onClick={(event) => this.setState({ mainMenu: event.currentTarget})}/>
-                    </Toolbar>
-                </AppBar>
-
-                {
-                    this.state.tags.map((tag) => (
-
-                        <div style={{margin: 20}} key={tag}>
-                            <Typography variant='h6'>
-                                {tag}
+                            <Typography variant="h5" style={{ flex: 1, color: 'black' }}>
+                                Reader
                             </Typography>
 
-                            <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} spacing={12} cols={5}>
-                                {
-                                    this.state.articles[tag].map((article) => (
-                                        
-                                        <GridListTile key={article.id}
-                                            onClick={() => this.props.history.push(`/articles/${article.id}`)}
-                                            style={{height: '200px', width: '300px'}}>
-                                            <img src={article.image} />
+                            <Avatar
+                                src={this.state.userAvatar}
+                                variant='circle'
+                                style={{ height: '40px', width: '40px', borderColor: 'primary', borderWidth: 2 }}
+                                onClick={(event) => this.setState({ mainMenu: event.currentTarget })} >
+                                <PersonIcon />
+                            </Avatar>
+                        </Toolbar>
+                    </AppBar>
 
-                                            <GridListTileBar
-                                                title={article.title}
-                                                style={{ padding: 4 }}
-                                                actionIcon={<Avatar src={article.author.avatar}></Avatar>}
-                                                subtitle={article.author.name}
-                                            >
-                                            </GridListTileBar>
-                                        </GridListTile>
-                                    ))
-                                }
-                                
-                            </GridList>
-                        </div>
-                
-                    ))
-                 }
-                {/* <GridList style={{flexWrap: 'nowrap', transform: 'translateZ(0)'}} cols={5}>
+                    <div style={{paddingLeft: 80, paddingRight: 80}}>
+                        {
+                            this.state.tags.map((tag) => (
 
-                    {
-                        indices.map((i => (
-                            <div>
-                                <Typography variant='body1'>
-                                    {this.state.tags[i].toUpperCase()}
+                                <div style={{ margin: 20 }} key={tag}>
+                                    <Typography variant='h5' style={{ marginBottom: 20 }}>
+                                        {tag}
+                                    </Typography>
+
+                                    <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} cols={5}>
+                                        {
+                                            this.state.articles[tag].map((article) => (
+
+                                                <GridListTile key={article.id}
+                                                    onClick={() => this.props.history.push(`/articles/${article.id}`)}
+                                                    style={{
+                                                        height: '200px',
+                                                        width: '300px',
+                                                        margin: 8,
+                                                        boxShadow: '0 2px 5px 3px rgb(0,0,0,0.4)',
+                                                        paddding: 0
+                                                    }}>
+
+                                                    <img src={article.image} />
+
+                                                    <GridListTileBar
+                                                        title={article.title}
+                                                        style={{
+                                                            padding: 4,
+                                                            background: 'linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%)',
+
+                                                        }}
+                                                        actionIcon={<Avatar src={article.author.avatar}></Avatar>}
+                                                        subtitle={article.author.name}
+                                                    >
+                                                    </GridListTileBar>
+                                                </GridListTile>
+                                            ))
+                                        }
+
+                                    </GridList>
+                                </div>
+
+                            ))
+                        }
+
+                        <Menu
+                            id='main-menu'
+                            anchorEl={this.state.mainMenu}
+                            keepMounted
+                            open={Boolean(this.state.mainMenu)}
+                            onClose={() => this.setState({ mainMenu: false })}>
+
+                            <MenuItem>
+                                <Grid container direction='row' spacing={4}>
+                                    <Grid item container justify='center' alignItems='center'>
+                                        <Avatar
+                                            src={this.state.userAvatar}
+                                            variant='circle'
+                                            style={{ height: '40px', width: '40px'}} >
+                                            <PersonIcon />
+                                        </Avatar>
+                                    </Grid>
+
+                                    <Grid container item justify='center' alignItems='center'>
+                                        <Typography variant='body1' align='center'>
+                                            <Link color='inherit' onClick={() => this.props.history.push('/editProfile')}>
+                                                {this.state.userName}
+                                            </Link>
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </MenuItem>
+
+                            <MenuItem onClick={() => this.props.history.push('/writeArticle')} style={{ padding: 16 }}>
+                                <Typography variant='body1' align='center'>
+                                    New Article
                                 </Typography>
+                            </MenuItem>
 
-                                {
-                                    this.state.articles[this.state.tags[i]].map((article) => (
-                                        <GridListTile key={article.id}>
-                                            <img src={article.image} />
+                            <MenuItem onClick={() => this.setState({ mainMenu: false })} style={{ padding: 16 }}>
+                                <Typography variant='body1' align='center'>
+                                    Help
+                                </Typography>
+                            </MenuItem>
 
-                                            <GridListTileBar
-                                                title={article.title}
-                                            />
-                                        </GridListTile>
-                                    ))
-                                }
-                            </div>
-                
-                        )))
-                    }
-                </GridList> */}
-                
+                            <MenuItem onClick={() => this.handleSignOutClick()} style={{ padding: 16 }}>
+                                <Typography variant='body1' align='center'>
+                                    Sign Out
+                                </Typography>
+                            </MenuItem>
+                        </Menu>
 
-                <Menu
-                    id='main-menu'
-                    anchorEl={this.state.mainMenu}
-                    keepMounted
-                    open={Boolean(this.state.mainMenu)}
-                    onClose={() => this.setState({ mainMenu: false })}>
+                        <Footer />
+                    </div>
                     
-                    <MenuItem onClick={() => this.props.history.push('/writeArticle')}>New Article</MenuItem>
-                    <MenuItem onClick={() => this.props.history.push('/editProfile')}>Edit Profile</MenuItem>
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
-                    <MenuItem onClick={() => this.handleSignOutClick()}>Sign Out</MenuItem>
-                </Menu>
-
-                
-                
-
-            </div>
+                </div>
+            </ThemeProvider>
+            
             
         )
     }
