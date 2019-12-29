@@ -99,6 +99,7 @@ export default class Home extends React.Component{
         const user = content.user;
         Cookies.set('userId', user.id, { expires: 7 });
         Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
+        Cookies.set('profileComplete', false, { expires: 7 });
     }
 
     handleGetStartedClick() {
@@ -151,6 +152,7 @@ export default class Home extends React.Component{
         const user = content.user;
         Cookies.set('userId', user.id, { expires: 7 });
         Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
+        Cookies.set('profileComplete', true, { expires: 7 });
     }
 
     handleSignInClick() {
@@ -194,12 +196,15 @@ export default class Home extends React.Component{
         //to allow the user to signup.
 
         const userAuthenticated = Cookies.get('userAuthenticated');
+        const profileComplete = Cookies.get('profileComplete');
         console.log('Cookie userAuthenticated: ', userAuthenticated);
 
-        if (userAuthenticated)
+        if (userAuthenticated && profileComplete)
             this.props.history.push('/dashboard');
-        else
-            this.setState({ loading: false });
+        else if (!profileComplete)
+            this.props.history.push('/profile');
+            
+        this.setState({ loading: false });
     }
     
     render() {

@@ -6,10 +6,18 @@ import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Link from '@material-ui/core/Link';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+import Grid from '@material-ui/core/Grid';
+import PersonIcon from '@material-ui/icons/Person';
+
+
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Chip from '@material-ui/core/Chip';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
@@ -34,19 +42,19 @@ export default class WriteArticle extends React.Component{
             userName: null,
             userAvatar: null,
             articleMenu: null,
-            tagsDialog: false,
+            tagDialog: false,
             publishing: false,
             title: '',
             body: '',
-            choices: [
-                { tag: 'Entertainment', selected: false },
-                { tag: 'Faishon', selected: false },
-                { tag: 'Fitness', selected: false },
-                { tag: 'Finance', selected: false },
-                { tag: 'Relationship', selected: false },
-                { tag: 'Technology', selected: false }
+            tags: [
+                { word: 'Entertainment', selected: false },
+                { word: 'Faishon', selected: false},
+                { word: 'Finance', selected: false },
+                { word: 'Fitness', selected: false},
+                { word: 'Relationship', selected: false },
+                { word: 'Technology', selected: false}
             ],
-            selections: 0,
+            selectedIndex: null,
             encodedImage: '',
             blobImage: null
         }
@@ -64,9 +72,9 @@ export default class WriteArticle extends React.Component{
             throw Error('ERR_NULL_BODY');
     }
 
-    async validateChoices() {
-        if (this.state.selections == 0)
-            throw Error('ERR_NO_SELECTIONS');
+    async validateTag() {
+        if (this.state.selectedTag == '')
+            throw Error('ERR_NO_SELECTION');
     }
 
 
@@ -83,14 +91,14 @@ export default class WriteArticle extends React.Component{
         3. Insert the article id into the choices tables that the author has selected for it
         */
         
-
-        //Get the choices that have been selected by the user
-        let selectedTags = [];
-
-        this.state.choices.map((choice) => {
-            if (choice.selected)
-                selectedTags.push(choice.tag.toLowerCase());
+        const body = JSON.stringify({
+            userId: userId,
+            articleTitle: this.state.title,
+            articleBody: this.state.body,
+            articleTag: this.state.tags[this.state.selectedIndex].word.toLowerCase(),
+            articleImage: this.state.encodedImage
         });
+        console.log(body);
         
         const rawResponse = await fetch(serverUrl + '/article/new', {
             method: 'POST',
@@ -99,13 +107,7 @@ export default class WriteArticle extends React.Component{
                 'Accept': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            body: JSON.stringify({
-                userId: userId,
-                articleTitle: this.state.title,
-                articleBody: this.state.body,
-                articleTags: selectedTags,
-                articleImage: this.state.encodedImage
-            })
+            body: body
         });
 
         let content = await rawResponse.json();
@@ -116,6 +118,7 @@ export default class WriteArticle extends React.Component{
 
     handlePublishArticle() {
         this.setState({ publishing: true });
+
         this.validateTitle()
             .then(() => this.validateBody())
             .then(() => this.publishArticle())
@@ -125,24 +128,27 @@ export default class WriteArticle extends React.Component{
             })
             .catch((error) => {
                 console.error(error);
+                this.setState({ publishing: false });
                 //TODO: Snackbar for errors
             });
     }
 
-    handleChoiceClick(index) {
+    handleTagClick(index) {
 
-        if (this.state.choices[index].selected) {
-            this.state.choices[index].selected = false;
-            this.setState({ selections: this.state.selections - 1 });
+        if (this.state.tags[index].selected) {
+            this.state.tags[index].selected = false;
+            this.setState({ selectedIndex: null });
         }
         else {
-            if (this.state.selections < 1) {
-                this.state.choices[index].selected = true;
-                this.setState({ selections: this.state.selections + 1 });
+            if (this.state.selectedIndex != null) {
+
+                this.state.tags[this.state.selectedIndex].selected = false;
+                this.state.tags[index].selected = true;
+                this.setState({ selectedIndex: index });
             }
             else {
-                //TODO: Add snackbar to notify user of full choices
-                console.log('Full');
+                this.state.tags[index].selected = true;
+                this.setState({ selectedIndex: index });
             }
         }
         this.forceUpdate();
@@ -182,36 +188,60 @@ export default class WriteArticle extends React.Component{
     }
 
     render() {
+        const theme = createMuiTheme({
+            palette: {
+                primary: {
+                    main: '#673ab7',
+                },
+                secondary: {
+                    light: '#828282',
+                    main: '#000',
+                    contrastText: '#fff',
+                },
+            },
+            typography: {
+                fontFamily: 'Nunito'
+            }
+        });
+
         if (this.state.loading)
-            return <CircularProgress color="secondary" style={{ marginLeft: '50%', marginTop: '25%' }} />
+            return (
+                <Backdrop
+                    open={this.state.loading}
+                >
+                    <CircularProgress color='default' />
+                </Backdrop>
+            )
         return (
-            <div>
-                <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
-                    <Toolbar style={{alignItems: 'center'}}>
-
-                        
-                            <Typography variant="h6" style={{ flex: 1, color: 'black' }}>
-                                Reader
+            <ThemeProvider theme={theme}>
+                <div>
+                    <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
+                        <Toolbar style={{paddingLeft: 80, paddingRight: 80}}>
+    
+                            <Typography variant="h5" style={{ flex: 1, color: 'black' }}>
+                                <Link color='inherit' onClick={() => this.props.history.push('/')}>
+                                    Reader
+                                </Link>
                             </Typography>
-                        
 
-                        
-                            <Typography align='center' style={{ flex: 1 }}>
-                                <Button variant='contained' size='small' color='primary' onClick={() => this.setState({ tagsDialog: true })}>
-                                    Publish
-                                </Button>
-                            </Typography>
-                        
-                        <div style={{flex: 1, alignItems: 'center'}}>
+                            <Button
+                                variant='contained'
+                                color='primary'
+                                style={{ paddingLeft: 40, paddingRight: 40, marginRight: 40, textTransform: 'capitalize' }}
+                                onClick={() => this.setState({ tagDialog: true })}>
+                                <Typography align='center' variant='h6'>
+                                    Publish   
+                                </Typography>
+                            </Button>
+                            
                             <Avatar
                                 src={this.state.userAvatar}
                                 variant='circle'
-                                style={{ height: '40px', width: '40px', }}
-                                onClick={(event) => this.setState({ mainMenu: event.currentTarget })} />
-                        </div>
-                        
-                    </Toolbar>
-                </AppBar>
+                                style={{ height: '40px', width: '40px'}}
+                                onClick={(event) => this.setState({ mainMenu: event.currentTarget })} />                         
+                            
+                        </Toolbar>
+                    </AppBar>
 
                 <Menu
                     id='main-menu'
@@ -220,26 +250,44 @@ export default class WriteArticle extends React.Component{
                     open={Boolean(this.state.mainMenu)}
                     onClose={() => this.setState({ mainMenu: false })}>
 
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Profile</MenuItem>
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Help</MenuItem>
-                    <MenuItem onClick={() => this.setState({ mainMenu: false })}>Sign Out</MenuItem>
-                </Menu>
+                    <MenuItem>
+                        <Grid container direction='row' spacing={4}>
+                            <Grid item container justify='center' alignItems='center'>
+                                <Avatar
+                                    src={this.state.userAvatar}
+                                    variant='circle'
+                                    style={{ height: '64px', width: '64px' }} >
+                                    <PersonIcon />
+                                </Avatar>
+                            </Grid>
 
-                <Menu
-                    id='article-menu'
-                    anchorEl={this.state.articleMenu}
-                    keepMounted
-                    open={Boolean(this.state.articleMenu)}
-                    onClose={() => this.setState({ articleMenu: false })}>
-
-                    <MenuItem onClick={() => {
-                        this.imageInput.click();
-                        this.setState({ articleMenu: false });
-                    }}>
-                        Change Featured Image
+                            <Grid container item justify='center' alignItems='center'>
+                                <Typography variant='body1' align='center' style={{ fontSize: 24 }}>
+                                    <Link color='inherit' onClick={() => this.props.history.push('/editProfile')}>
+                                        {this.state.userName}
+                                    </Link>
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        </MenuItem>
                         
+                        <MenuItem onClick={() => this.props.history.push('/')} style={{ padding: 16 }}>
+                            <Typography variant='body1' align='center'>
+                                Dashboard
+                            </Typography>
+                        </MenuItem>
+                        
+                    <MenuItem onClick={() => this.setState({ mainMenu: false })} style={{ padding: 16 }}>
+                        <Typography variant='body1' align='center'>
+                            Help
+                        </Typography>
                     </MenuItem>
-
+                        
+                    <MenuItem onClick={() => this.setState({ mainMenu: false })} style={{ padding: 16 }}>
+                        <Typography variant='body1' align='center'>
+                            Sign Out
+                        </Typography>
+                    </MenuItem>
                 </Menu>
 
                 <input
@@ -258,15 +306,15 @@ export default class WriteArticle extends React.Component{
                         </Typography>
 
                         <Typography variant='body1' align='center'>
-                            Here you can preview the cover image for your article. Others will see this image
+                            Here you can preview the cover image for your article. This will be displayed on the dashboard of other users.
                         </Typography>
                             
                         <Typography align='center'>
                                 <Button
                                     variant='outlined'
-                                    color='secondary'
+                                    color='primary'
                                     style={{ marginTop: 20, marginBottom: 20 }}
-                                    onClick={(event) => this.setState({ articleMenu: event.currentTarget })}>
+                                    onClick={() => this.imageInput.click()}>
                                 Select Image
                             </Button>
                         </Typography>
@@ -286,7 +334,7 @@ export default class WriteArticle extends React.Component{
                     
                     <Input
                         placeholder='Title'
-                        style={{ fontSize: 36, marginTop: 80, marginBottom: 20 }}
+                        style={{ fontSize: 32, marginTop: 80, marginBottom: 20 }}
                         fullWidth
                         multiline
                         rowsMax={3}
@@ -294,68 +342,46 @@ export default class WriteArticle extends React.Component{
                     
                     <Input
                         placeholder='Write your article'
-                        style={{ fontSize: 20, marginTop: 20, marginBottom: 20 }}
+                        style={{ fontSize: 18, marginTop: 20, marginBottom: 20 }}
                         fullWidth
                         multiline
                         onChange={(event) => this.setState({ body: event.target.value})}/>
                 </div>
 
                 <Dialog
-                    open={this.state.tagsDialog}
+                    open={this.state.tagDialog}
                     onBackdropClick={(event) => console.log('Backdrop Clicked')}
-                    onClose={() => this.setState({ tagsDialog: false })}
+                    onClose={() => this.setState({ tagDialog: false })}
                     onExited={() => this.setState({ publishing: false })}
                     aria-labelledby="form-dialog-title"
-                    style={{padding: 40}}>
-                    
+                    style={{padding: 40}}>      
                     
                     <Typography variant='h5' align='center' style={{ margin: 20 }}>
                         One Last Thing
                     </Typography>
-                
-                
-                    <Typography variant='body2' align='center' style={{ margin: 20 }}>
-                        You have almost completed your article. Just one last thing. Select upto 3 tags that make it easier for viewers to find you article on Reader. Think of them as #hashtags.
+                            
+                    <Typography variant='body1' align='center' style={{ margin: 20 }}>
+                        You have almost completed your article. Just one last thing. Select a category that makes it easier for readers to find you article on Reader. Think it as a #hashtag.
                     </Typography>
-                   
-                    
+                                      
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[0].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(0)}
-                            color={this.state.choices[0].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[1].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(1)}
-                            color={this.state.choices[1].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[2].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(2)}
-                            color={this.state.choices[2].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[3].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(3)}
-                            color={this.state.choices[3].selected ? 'secondary' : 'default'}
-                        />
+                        {
+                                this.state.tags.map((tagObj, i) => (
+                                    <Chip
+                                        key={i}
+                                        clickable
+                                        color={this.state.tags[i].selected ? 'primary' : 'secondary'}
+                                        icon={<CheckCircleOutlineIcon />}
+                                        label={<Typography variant='body1'>{tagObj.word}</Typography>}
+                                        style={{ margin: 8, padding: 16 }}
+                                        onClick={() => this.handleTagClick(i)}
+                                    />
+                            ))
+                        }
                     </div>
 
                     <DialogActions>
-                        <Button onClick={() => this.setState({ tagsDialog: false })} variant='text' color='default' style={{ textTransform: 'capitalize', fontSize: 18 }}>
+                        <Button onClick={() => this.setState({ tagDialog: false })} variant='text' color='default' style={{ textTransform: 'capitalize', fontSize: 18 }}>
                             Cancel
                         </Button>
                         {
@@ -375,6 +401,7 @@ export default class WriteArticle extends React.Component{
                 
                 <Footer/>
             </div>
+            </ThemeProvider>
         )
     }
 }

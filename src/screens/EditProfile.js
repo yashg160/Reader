@@ -5,14 +5,20 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
-import Input from '@material-ui/core/Input';
-import Chip from '@material-ui/core/Chip';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
-
-import { makeStyles } from '@material-ui/core/styles';
+import Divider from '@material-ui/core/Divider'
 
 
-import InputBase from '@material-ui/core/InputBase';
+import PersonIcon from '@material-ui/icons/Person';
+
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Link from '@material-ui/core/Link';
+
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
+import TextField from '@material-ui/core/TextField';
+
 
 import Footer from '../components/Footer';
 
@@ -22,6 +28,9 @@ import serverUrl from '../config';
 import Cookies from 'js-cookie';
 
 import imageCompression from 'browser-image-compression';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Backdrop from '@material-ui/core/Backdrop';
+
 
 
 export default class EditProfile extends React.Component {
@@ -30,131 +39,32 @@ export default class EditProfile extends React.Component {
         super(props);
 
         this.state = {
+            loading: false,
             disabled: true,
             userName: '',
             userAbout: '',
+            userAvatar: '',
             userNameChanged: false,
             userAboutChanged: false,
             userAvatarChanged: false,
-            userChoiceChanged: false,
             userNameError: false,
             userNameErrorMessage: '',
             userAboutError: false,
             userAboutErrorMessage: '',
-            choices: [
-                { tag: 'Entertainment', selected: false },
-                { tag: 'Faishon', selected: false },
-                { tag: 'Fitness', selected: false },
-                { tag: 'Finance', selected: false },
-                { tag: 'Relationship', selected: false },
-                { tag: 'Technology', selected: false }
-            ],
-            selections: 0,
-            choicesChanged: false, 
+            compressing: false,
             reader: new FileReader(),
-            encodedImage: ''
+            encodedImage: '',
         }
 
         this.imageInput = null;
 
     }
 
-    profileHeading() {
-
-        const styles = makeStyles(theme => ({
-            root: {
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
-            },
-            profileHeading: {
-                marginTop: 80,
-                marginBottom: 40,
-                [theme.breakpoints.down('sm')]: {
-                    marginTop: 40,
-                    marginBottom: 40
-                }
-            },
-            profileSubtitle: {
-                marginTop: 20,
-                marginBottom: 20
-            }
-        }));
-
-        const classes = styles();
-
-        return (
-            <div className={classes.root}>
-                <Typography variant="h4" align='center' className={classes.profileHeading}>
-                    Your Profile
-                </Typography>
-                <Typography variant='body1' align='center' className={classes.profileSubtitle}>
-                    Your profile is your identity. Keep it up to date.
-                </Typography>
-            </div>
-        )
-    }
-
-    choicesHeading() {
-        const styles = makeStyles(theme => ({
-            root: {
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center'
-            },
-            interestsHeading: {
-                marginTop: 80,
-                marginBottom: 40,
-                [theme.breakpoints.down('sm')]: {
-                    marginTop: 40,
-                    marginBottom: 40
-                }
-            },
-            interestSubheading: {
-                marginTop: 20,
-                marginBottom: 20
-            }
-        }));
-
-        const classes = styles();
-
-        return (
-            <div className={classes.root}>
-                <Typography variant='h4' className={classes.interestsHeading}>
-                    Interests
-                </Typography>
-                <Typography varaint='body1' className={classes.interestSubheading}>
-                    Select what you want to read about.
-                </Typography>
-            </div>
-
-        )
-    }
-
-    handleChoiceClick(index) {
-
-        if (this.state.choices[index].selected) {
-            this.state.choices[index].selected = false;
-            this.setState({ selections: this.state.selections - 1, choicesChanged: true });
-        }
-        else {
-            if (this.state.selections < 5) {
-                this.state.choices[index].selected = true;
-                this.setState({ selections: this.state.selections + 1, choicesChanged: true });
-            }
-            else {
-                //TODO: Add snackbar to notify user of full choices
-                console.log('Full');
-            }
-        }
-        this.forceUpdate();
-    }
-
     imageSelectHandler = event => {
 
         console.log(event.target.files[0]);
+
+        this.setState({ compressing: true, encodedImage: null });
 
         var reader = this.state.reader;
 
@@ -167,12 +77,15 @@ export default class EditProfile extends React.Component {
 
                 reader.addEventListener('loadend', () => {
                     console.log(reader.result);
-                    this.setState({ encodedImage: reader.result, userAvatarChanged: true });
+                    this.setState({ encodedImage: reader.result, userAvatarChanged: true, compressing: false });
                 });
 
                 reader.readAsDataURL(file);
             })
-            .catch((error) => console.error(error));
+            .catch((error) => {
+                console.error(error);
+                this.setState({ compressing: false, encodedImage: this.state.userAvatar });
+            });
     }
 
     async getUser(userId) {
@@ -203,23 +116,10 @@ export default class EditProfile extends React.Component {
             throw Error('ERR_ABOUT');
     }
 
-    async validateChoices() {
-        if (this.state.selections == 0)
-            throw Error('ERR_NO_SELECTIONS');
-    }
-
     async updateProfile() {
 
         const userId = Cookies.get('userId');
         console.log(userId);
-
-        //Get the choices that have been selected by the user
-        let selectedChoices = [];
-
-        this.state.choices.map((choice) => {
-            if (choice.selected)
-                selectedChoices.push(choice.tag.toLowerCase());
-        });
 
         let rawResponse = await fetch(serverUrl + '/users/update', {
             method: 'PUT',
@@ -232,7 +132,6 @@ export default class EditProfile extends React.Component {
                 id: userId,
                 name: this.state.userName,
                 about: this.state.userAbout,
-                choices: selectedChoices,
                 avatar: this.state.userAvatarChanged ? this.state.encodedImage : null
             })
         });
@@ -247,9 +146,9 @@ export default class EditProfile extends React.Component {
     }
 
     handleProfileSubmit() {
+        this.setState({ loading: true });
         this.validateName()
             .then(() => this.validateAbout())
-            .then(() => this.validateChoices())
             .then(() => this.updateProfile())
             .then((content) => {
                 console.log(content);
@@ -257,6 +156,7 @@ export default class EditProfile extends React.Component {
             })
             .catch((error) => {
                 console.error(error);
+                this.setState({ loading: false });
                 // TODO: Handle error conditions
         })
     }
@@ -266,38 +166,13 @@ export default class EditProfile extends React.Component {
         const userId = Cookies.get('userId');
 
         this.getUser(userId)
-            .then((user) => {
-                console.log(user);
+            .then((content) => {
+                console.log(content);
 
-                const { name, about, avatar, choices } = user.user;
+                const { name, about, avatar } = content.user;
                 
-                this.setState({ userName: name, encodedImage: avatar, userAbout: about });
-                
-                choices.map((choice) => {
-                    switch (choice) {
-                        case 'entertainment':
-                            this.state.choices[0].selected = true;
-                            break;
-                        case 'faishon':
-                            this.state.choices[1].selected = true;
-                            break;
-                        case 'fitness':
-                            this.state.choices[2].selected = true;
-                            break;
-                        case 'finance':
-                            this.state.choices[3].selected = true;
-                            break;
-                        case 'relationship':
-                            this.state.choices[4].selected = true;
-                            break;
-                        case 'technology':
-                            this.state.choices[5].selected = true;
-                            break;
-                        default:
-                            console.log(choice, 'Not Matched');
-                    }
-                    this.forceUpdate();
-                });
+                this.setState({ userName: name, userAvatar: avatar, encodedImage: avatar, userAbout: about });
+            
             }) 
             .catch(error => {
                 console.error(error);
@@ -305,169 +180,237 @@ export default class EditProfile extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
-                    <Toolbar>
+        const theme = createMuiTheme({
+            palette: {
+                primary: {
+                    main: '#673ab7',
+                },
+                secondary: {
+                    light: '#828282',
+                    main: '#000',
+                    contrastText: '#fff',
+                },
+            },
+            typography: {
+                fontFamily: 'Nunito'
+            }
+        });
 
-                        <Typography variant="h6" style={{ flex: 1, color: 'black' }} onClick={() => this.props.history.push('/dashboard')}>
-                            Reader
+        return (
+            <ThemeProvider theme={theme}>
+                <div>
+                    <AppBar position="sticky" style={{ backgroundColor: 'white' }}>
+                        <Toolbar style={{ paddingLeft: 80, paddingRight: 80 }}>
+
+                            <Typography variant="h5" style={{ flex: 1, color: 'black' }} onClick={() => this.props.history.push('/dashboard')}>
+                                <Link color='default' onClick={() => this.props.history.push('/')}>
+                                    Reader
+                                </Link>
+                            </Typography>
+
+                            <Button
+                                variant='outlined'
+                                style={{ paddingLeft: 20, paddingRight: 20, marginRight: 40, textTransform: 'capitalize' }}
+                                color='primary'>
+                                Upgrade
+                            </Button>
+
+                            <Avatar
+                                src={this.state.userAvatar}
+                                variant='circle'
+                                style={{ height: '40px', width: '40px' }}
+                                onClick={(event) => this.setState({ mainMenu: event.currentTarget })} >
+                                <PersonIcon color='#000' />
+                            </Avatar>
+
+
+                        </Toolbar>
+                    </AppBar>
+
+                    <Menu
+                        id='main-menu'
+                        anchorEl={this.state.mainMenu}
+                        keepMounted
+                        open={Boolean(this.state.mainMenu)}
+                        onClose={() => this.setState({ mainMenu: false })}>
+
+                        <MenuItem>
+                            <Grid container direction='row' spacing={4}>
+                                <Grid item container justify='center' alignItems='center'>
+                                    <Avatar
+                                        src={this.state.userAvatar}
+                                        variant='circle'
+                                        style={{ height: '64px', width: '64px' }} >
+                                        <PersonIcon />
+                                    </Avatar>
+                                </Grid>
+
+                                <Grid container item justify='center' alignItems='center'>
+                                    <Typography variant='body1' align='center' style={{ fontSize: 24 }}>
+                                        <Link color='inherit' onClick={() => this.props.history.push('/editProfile')}>
+                                            {this.state.userName}
+                                        </Link>
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        </MenuItem>
+
+                        <MenuItem onClick={() => this.props.history.push('/dashboard')} style={{ padding: 16 }}>
+                            <Typography variant='body1' align='center'>
+                                Dashboard
+                            </Typography>
+                        </MenuItem>
+
+                        <MenuItem onClick={() => this.props.history.push('/writeArticle')} style={{ padding: 16 }}>
+                            <Typography variant='body1' align='center'>
+                                New Article
+                                </Typography>
+                        </MenuItem>
+
+                        <MenuItem onClick={() => this.setState({ mainMenu: false })} style={{ padding: 16 }}>
+                            <Typography variant='body1' align='center'>
+                                Help
+                                </Typography>
+                        </MenuItem>
+
+                        <MenuItem onClick={() => this.handleSignOutClick()} style={{ padding: 16 }}>
+                            <Typography variant='body1' align='center'>
+                                Sign Out
+                                </Typography>
+                        </MenuItem>
+                    </Menu>
+
+                        <div style={{paddingLeft: 300, paddingRight: 300, paddingTop: 80}}>
+                            
+                        <Typography variant="h4" align='center' style={{marginBottom: 8}}>
+                            Your Profile
                         </Typography>
 
-                    </Toolbar>
-                </AppBar>
+                        <Typography variant='body1' align='center' style={{ marginTop: 8 }}>
+                            Update your profile
+                        </Typography>
 
-                <this.profileHeading />
-                
-                <Typography align='center'>
-                    <Button variant='text'
-                        style={{
-                            marginTop: 40, marginBottom: 40
-                        }}
-                        color='secondary'
-                        onClick={() => this.setState({ disabled: false })}>
-                        Edit Profile
-                    </Button>
-                    {/* Show Snackbar to inform user that all fields have been enabled */}
-                </Typography>
-                
+                        <Divider variant='middle' style={{marginTop: 64, marginBottom: 64, height: 4}}/>
 
-                {/* TODO: Replace InputBase with some other textfield variant */}
-                <Grid container direction="row" style={{ paddingRight: 100, paddingLeft: 100 }}>
+                        <Typography align='center'>
+                            <Button
+                                variant='outlined'
+                                style={{
+                                    marginBottom: 40,
+                                    textTransform: 'capitalize',
+                                    paddingLeft: 40, 
+                                    paddingRight: 40
+                                }}
+                                color='primary'
+                                onClick={() => this.setState({ disabled: false })}
+                            >
+                                <Typography variant='h6' align='center'>
+                                    Edit Profile
+                                </Typography>
+                            </Button>
+                            {/* Show Snackbar to inform user that all fields have been enabled */}
+                        </Typography>
 
-                    <Grid container item xs={12} sm={6} direction="column" justify='center' alignItems='center'>
+                        <Grid container direction="row" >
 
-                        <InputBase
-                            onChange={event => this.setState({ userName: event.target.value, userNameChanged: true })}
-                            error={this.state.userNameError}
-                            value={this.state.userName}
-                            placeholder={'Full Name'}
-                            fullWidth
-                            style={{
-                                fontSize: 26,
-                                padding: 20,
-                                fontStyle: 'bold',
-                            }}
-                            inputProps={{ style: { textAlign: 'center' } }}
-                            readOnly={this.state.disabled}
-                            /* contentEditable={!this.state.disabled} */
-                        />
-                        <InputBase
-                            onChange={event => this.setState({ userAbout: event.target.value, userAboutChanged: true })}
-                            error={this.state.userAboutError}
-                            value={this.state.userAbout}
-                            placeholder={'Tell other something about you'}
-                            fullWidth
-                            multiline
-                            rowsMax={3}
-                            style={{
-                                padding: 20,
-                                fontStyle: 'bold',
-                                textAlign: 'center'
-                            }}
-                            inputProps={{ style: { textAlign: 'center' } }}
-                            readOnly={this.state.disabled}
-                            /* contentEditable={!this.state.disabled} */
-                        />
+                            <Grid container xs={6} item justify='center' alignItems='center' direction="column">
 
-                    </Grid>
+                                <TextField
+                                    variant='standard'
+                                    onChange={event => this.setState({ userName: event.target.value, userNameChanged: true })}
+                                    error={this.state.userNameError}
+                                    value={this.state.userName}
+                                    label='Name'
+                                    placeholder={'Full Name'}
+                                    fullWidth
+                                    style={{
+                                        fontSize: 26,
+                                        padding: 20,
+                                        fontStyle: 'bold',
+                                    }}
+                                    inputProps={{ style: { textAlign: 'center', fontSize: 24 } }}
+                                    disabled={this.state.disabled}/>
+                                
+                                <TextField
+                                    variant='standard'
+                                    onChange={event => this.setState({ userAbout: event.target.value, userAboutChanged: true })}
+                                    error={this.state.userAboutError}
+                                    value={this.state.userAbout}
+                                    label='About'
+                                    placeholder={'Something about you'}
+                                    fullWidth
+                                    multiline
+                                    rowsMax={3}
+                                    style={{
+                                        padding: 20,
+                                        fontStyle: 'bold',
+                                        textAlign: 'center'
+                                    }}
+                                    inputProps={{ style: { textAlign: 'center' } }}
+                                    disabled={this.state.disabled}/>
 
-                    <Grid container item xs={12} sm={6} justify='center' alignItems='center' direction='column'>
-                        <Avatar variant='circle' style={{ height: '160px', width: '160px' }} src={this.state.encodedImage} alt='Image'>
-                            {/* TODO: Avatar of the user. Add icon for initial display */}
-                        </Avatar>
+                            </Grid>
 
-                        <Button variant='outlined' color='secondary' onClick={() => this.imageInput.click()}>
-                            Select Picture
-                        </Button>
-                        <input
-                            style={{ display: 'none' }}
-                            type='file'
-                            onChange={this.imageSelectHandler}
-                            ref={imageInput => this.imageInput = imageInput}
-                        />
+                            <Grid container item xs={6} justify='center' alignItems='center' direction='column'>
+                                <Avatar
+                                    src={this.state.encodedImage}
+                                    variant='circle'
+                                    style={{ height: '160px', width: '160px' }}
+                                    alt={this.state.userName}
+                                >
+                                    {
+                                        this.state.compressing ? <CircularProgress/> : <PersonIcon/>
+                                    }
+                                </Avatar>
 
-                    </Grid>
+                                <Button
+                                    variant='outlined'
+                                    color='primary'
+                                    onClick={() => this.imageInput.click()}
+                                    style={{ marginTop: 40, paddingLeft: 40, paddingRight: 40, textTransform: 'capitalize' }}
+                                    disabled={this.state.disabled}
+                                >
+                                    <Typography variant='h6' align='center'>
+                                        Select Picture
+                                    </Typography>
+                                </Button>
+                                <input
+                                    style={{ display: 'none' }}
+                                    type='file'
+                                    onChange={this.imageSelectHandler}
+                                    ref={imageInput => this.imageInput = imageInput}
+                                />
 
-                </Grid>
+                            </Grid>
 
-                <this.choicesHeading/>
-                
-                <div >
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[0].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(0)}
-                            color={this.state.choices[0].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[1].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(1)}
-                            color={this.state.choices[1].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[2].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(2)}
-                            color={this.state.choices[2].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[3].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(3)}
-                            color={this.state.choices[3].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[4].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(4)}
-                            color={this.state.choices[4].selected ? 'secondary' : 'default'}
-                        />
-                        <Chip
-                            icon={<CheckCircleOutlineIcon />}
-                            label={this.state.choices[5].tag}
-                            style={{ margin: 10, padding: 20 }}
-                            clickable
-                            onClick={() => this.handleChoiceClick(5)}
-                            color={this.state.choices[5].selected ? 'secondary' : 'default'}
-                        />
+                        </Grid>
+
+                        <Divider variant='middle' style={{ marginTop: 64, marginBottom: 64, height: 4 }} />
+
+                        <Typography align='center'>
+                            <Button
+                                variant='contained'
+                                size='large'
+                                align='center'
+                                color='primary'
+                                onClick={() => this.handleProfileSubmit()}
+                                style={{  paddingLeft: 80, paddingRight: 80 }}
+                                disabled={this.state.disabled}>
+
+                                Submit
+                            </Button>
+                        </Typography>
                     </div>
 
-                    <Typography variant='h5' align='center' style={{ marginTop: 40 }}>
-                        Select upto 5 interests
-                    </Typography>
+                    <Footer />
 
+                    <Backdrop
+                        open={this.state.loading}
+                    >
+                        <CircularProgress color='#fff' />
+                    </Backdrop>               
                 </div>
-            
-                <Typography align='center'>
-                    <Button
-                        variant='contained'
-                        size='large'
-                        align='center'
-                        color='primary'
-                        onClick={() => this.handleProfileSubmit()}
-                        style={{ marginTop: 80, paddingLeft: 80, paddingRight: 80 }}
-                        disabled={this.state.disabled}>
-                        
-                        Submit
-                    </Button>
-                </Typography>
-
-                <Footer />
-
-            </div>
+            </ThemeProvider>
         )
     }
 }

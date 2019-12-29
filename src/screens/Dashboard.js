@@ -127,7 +127,7 @@ export default class Dashboard extends React.Component {
                 <Backdrop
                     open={this.state.loading}
                 >
-                    <CircularProgress color='white' />
+                    <CircularProgress color='inherit' />
                 </Backdrop>
             )
         
@@ -138,8 +138,17 @@ export default class Dashboard extends React.Component {
                         <Toolbar style={{paddingLeft: 80, paddingRight: 80}}>
 
                             <Typography variant="h5" style={{ flex: 1, color: 'black' }}>
-                                Reader
+                                <Link color='inherit' onClick={() => this.props.history.push('/')}>
+                                    Reader
+                                </Link>
                             </Typography>
+
+                            <Button
+                                variant='outlined'
+                                style={{ paddingLeft: 20, paddingRight: 20, marginRight: 40, textTransform: 'capitalize' }}
+                                color='primary'>
+                                Upgrade
+                            </Button>
 
                             <Avatar
                                 src={this.state.userAvatar}
@@ -155,22 +164,25 @@ export default class Dashboard extends React.Component {
                         {
                             this.state.tags.map((tag) => (
 
+                                this.state.articles[tag].length === 0 ? null :
+
                                 <div style={{ margin: 20 }} key={tag}>
-                                    <Typography variant='h5' style={{ marginBottom: 20 }}>
+                                    <Typography variant='h4' style={{ marginBottom: 20 }}>
                                         {tag}
                                     </Typography>
 
-                                    <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} cols={5}>
+                                    <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} cols={5} on>
                                         {
                                             this.state.articles[tag].map((article) => (
 
-                                                <GridListTile key={article.id}
+                                                <GridListTile
+                                                    key={article.id}
                                                     onClick={() => this.props.history.push(`/articles/${article.id}`)}
                                                     style={{
                                                         height: '200px',
                                                         width: '300px',
                                                         margin: 8,
-                                                        boxShadow: '0 2px 5px 3px rgb(0,0,0,0.4)',
+                                                        boxShadow: '0px 2px 3px 3px rgb(0,0,0,0.4)',
                                                         paddding: 0
                                                     }}>
 
@@ -180,7 +192,7 @@ export default class Dashboard extends React.Component {
                                                         title={article.title}
                                                         style={{
                                                             padding: 4,
-                                                            background: 'linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%)',
+                                                            background: 'linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0) 100%)',
 
                                                         }}
                                                         actionIcon={<Avatar src={article.author.avatar}></Avatar>}
@@ -210,13 +222,13 @@ export default class Dashboard extends React.Component {
                                         <Avatar
                                             src={this.state.userAvatar}
                                             variant='circle'
-                                            style={{ height: '40px', width: '40px'}} >
+                                            style={{ height: '64px', width: '64px'}} >
                                             <PersonIcon />
                                         </Avatar>
                                     </Grid>
 
                                     <Grid container item justify='center' alignItems='center'>
-                                        <Typography variant='body1' align='center'>
+                                        <Typography variant='body1' align='center' style={{fontSize: 24}}>
                                             <Link color='inherit' onClick={() => this.props.history.push('/editProfile')}>
                                                 {this.state.userName}
                                             </Link>
