@@ -152,7 +152,7 @@ export default class Home extends React.Component{
         const user = content.user;
         Cookies.set('userId', user.id, { expires: 7 });
         Cookies.set('userAuthenticated', user.authenticated, { expires: 7 });
-        Cookies.set('profileComplete', true, { expires: 7 });
+        Cookies.set('profileComplete', false);
     }
 
     handleSignInClick() {

@@ -171,13 +171,12 @@ export default class Dashboard extends React.Component {
                                         {tag}
                                     </Typography>
 
-                                    <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} cols={5} on>
+                                    <GridList style={{ flexWrap: 'nowrap', transform: 'translateZ(0)' }} cols={5}>
                                         {
                                             this.state.articles[tag].map((article) => (
 
                                                 <GridListTile
                                                     key={article.id}
-                                                    onClick={() => this.props.history.push(`/articles/${article.id}`)}
                                                     style={{
                                                         height: '200px',
                                                         width: '300px',
@@ -186,7 +185,7 @@ export default class Dashboard extends React.Component {
                                                         paddding: 0
                                                     }}>
 
-                                                    <img src={article.image} />
+                                                    <img src={article.image} onClick={() => this.props.history.push(`/articles/${article.id}`)}/>
 
                                                     <GridListTileBar
                                                         title={article.title}
@@ -196,7 +195,11 @@ export default class Dashboard extends React.Component {
 
                                                         }}
                                                         actionIcon={<Avatar src={article.author.avatar}></Avatar>}
-                                                        subtitle={article.author.name}
+                                                        subtitle={
+                                                            <Link color='inherit' onClick={() => this.props.history.push(`/users/${article.author.id}`)}>
+                                                                {article.author.name}
+                                                            </Link>
+                                                        }
                                                     >
                                                     </GridListTileBar>
                                                 </GridListTile>

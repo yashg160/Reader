@@ -9,6 +9,7 @@ import Profile from './screens/Profile';
 import WriteArticle from './screens/WriteArticle';
 import Article from './screens/Article';
 import EditProfile from './screens/EditProfile';
+import User from './screens/User';
 
 export default class App extends React.PureComponent {
   render() {
@@ -22,6 +23,7 @@ export default class App extends React.PureComponent {
               <Route path="/profile" component={Profile} />
               <Route path="/writeArticle" component={WriteArticle} />
               <Route path="/articles/:articleId" component={Article} />
+              <Route path="/users/:userId" component={User} />
               <Route path="/" component={Home} />
             </Switch>
         </Router>
