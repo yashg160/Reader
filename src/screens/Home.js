@@ -195,14 +195,14 @@ export default class Home extends React.Component{
         //Get the userAuthentcated cookie. If it is true, then move to the dashboard screen. Else, display this page
         //to allow the user to signup.
 
-        const userAuthenticated = Cookies.get('userAuthenticated');
+        /* const userAuthenticated = Cookies.get('userAuthenticated');
         const profileComplete = Cookies.get('profileComplete');
         console.log('Cookie userAuthenticated: ', userAuthenticated);
 
         if (userAuthenticated && profileComplete)
             this.props.history.push('/dashboard');
         else if (!profileComplete)
-            this.props.history.push('/profile');
+            this.props.history.push('/profile'); */
             
         this.setState({ loading: false });
     }
