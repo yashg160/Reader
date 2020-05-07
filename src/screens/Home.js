@@ -258,6 +258,13 @@ export default class Home extends React.Component{
                         </Toolbar>
                     </AppBar>
 
+                    <div style={{width: "100%", height: "auto",padding: "1rem 0 1rem 0", position: "sticky", backgroundColor: "rgba(255, 200, 200, 1)", display: "flex", alignItems: "center", justifyContent: 'center', color: "rgb(200, 0,0)"}}>
+                        <Typography variant="subtitle1" align="center">
+                            Unfortunately, the API for this project has been deployed, but due to unavailability of the correct version of MySQL database with Heroku's ClearDB, some breaking changes were introduced in the project structure.
+                            Visit the <a href="https://github.com/yashg160/Reader">Github repository</a> for more details and screenshots.
+                        </Typography>
+                    </div>
+
                     <div style={{ marginLeft: 120, marginRight: 120 }}>
 
                         <Typography align="center" variant="h1" style={{ marginTop: 80 }}>
