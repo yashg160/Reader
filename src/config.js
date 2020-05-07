@@ -1,3 +1,3 @@
-const serverUrl = 'http://localhost:3001';
+const serverUrl = 'http://my-reader-api.herokuapp.com';
 
 module.exports = serverUrl;
