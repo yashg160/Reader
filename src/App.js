@@ -18,12 +18,12 @@ export default class App extends React.PureComponent {
     return (
         <Router>
             <Switch>
-              <Route path="/dashboard" component={Dashboard} />
+              {/* <Route path="/dashboard" component={Dashboard} />
               <Route path="/editProfile" component={EditProfile} />
               <Route path="/profile" component={Profile} />
               <Route path="/writeArticle" component={WriteArticle} />
               <Route path="/articles/:articleId" component={Article} />
-              <Route path="/users/:userId" component={User} />
+              <Route path="/users/:userId" component={User} /> */}
               <Route path="/" component={Home} />
             </Switch>
         </Router>
