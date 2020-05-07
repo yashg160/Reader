@@ -195,14 +195,14 @@ export default class Home extends React.Component{
         //Get the userAuthentcated cookie. If it is true, then move to the dashboard screen. Else, display this page
         //to allow the user to signup.
 
-        const userAuthenticated = Cookies.get('userAuthenticated');
+        /* const userAuthenticated = Cookies.get('userAuthenticated');
         const profileComplete = Cookies.get('profileComplete');
         console.log('Cookie userAuthenticated: ', userAuthenticated);
 
         if (userAuthenticated && profileComplete)
             this.props.history.push('/dashboard');
         else if (!profileComplete)
-            this.props.history.push('/profile');
+            this.props.history.push('/profile'); */
             
         this.setState({ loading: false });
     }
@@ -433,7 +433,7 @@ export default class Home extends React.Component{
                             <Button onClick={() => this.setState({ getStartedDialog: false })} variant='text' color='default' style={{ textTransform: 'capitalize', fontSize: 18 }}>
                                 Cancel
                         </Button>
-                            {
+                            {/* {
                                 this.state.dialogLoading ?
 
                                     <CircularProgress color='primary' size={24} variant="indeterminate" style={{ marginLeft: 40, marginRight: 40 }} />
@@ -443,7 +443,10 @@ export default class Home extends React.Component{
                                         Sign Up
                                 </Button>
 
-                            }
+                            } */}
+                            <Button onClick={() => this.setState({getStartedDialog: false})} variant='contained' color="primary" style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, padding: 10 }}>
+                                        Sign Up
+                                </Button>
                         </DialogActions>
 
                     </Dialog>
@@ -503,7 +506,7 @@ export default class Home extends React.Component{
                                 Cancel
                         </Button>
                             {/*TODO: Complete the sign up functionality*/}
-                            {
+                            {/* {
                                 this.state.dialogLoading ?
 
                                     <CircularProgress color='primary' size={24} variant="indeterminate" style={{ marginLeft: 40, marginRight: 40 }} />
@@ -511,9 +514,12 @@ export default class Home extends React.Component{
                                     :
                                     <Button onClick={() => this.handleSignInClick()} variant='contained' color='primary' style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, padding: 10 }}>
                                         Sign In
-                            </Button>
+                                    </Button>
 
-                            }
+                            } */}
+                            <Button onClick={() => this.setState({signInDialog: false})} variant='contained' color='primary' style={{ textTransform: 'capitalize', color: 'white', fontSize: 18, padding: 10 }}>
+                                        Sign In
+                                    </Button>
                         </DialogActions>
                     </Dialog>
 
