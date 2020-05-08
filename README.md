@@ -4,6 +4,8 @@ Reader front end, created with React.js and Material UI.
 
 Visit at https://yashg160.github.io/Reader
 
+**Note: The project has been left in an unusable state. I have included screenshots from the local development server below.**
+
 ## Screenshots
 
 Home screen of the app. Appears when you first open the app.
