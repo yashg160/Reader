@@ -260,8 +260,8 @@ export default class Home extends React.Component{
 
                     <div style={{width: "100%", height: "auto",padding: "1rem 0 1rem 0", position: "sticky", backgroundColor: "rgba(255, 200, 200, 1)", display: "flex", alignItems: "center", justifyContent: 'center', color: "rgb(200, 0,0)"}}>
                         <Typography variant="subtitle1" align="center">
-                            Unfortunately, the API for this project has been deployed, but due to unavailability of the correct version of MySQL database with Heroku's ClearDB, some breaking changes were introduced in the project structure.
-                            Visit the <a href="https://github.com/yashg160/Reader">Github repository</a> for more details and screenshots.
+                            Unfortunately, the API for this project has been deployed, but due to unavailability of the correct version of MySQL database with Heroku's ClearDB, some breaking changes were introduced in the project structure, <strong>leaving it unusable.</strong>
+                            Visit the <a href="https://github.com/yashg160/Reader">Github repository</a> for more details and screenshots. Visit the <a href="https://github.com/yashg160/Reader-API">backend</a> repo for more details on the API.
                         </Typography>
                     </div>
 
